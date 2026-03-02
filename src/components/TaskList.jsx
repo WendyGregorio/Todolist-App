@@ -132,25 +132,25 @@ export default function TaskList({ session, selectedCategoryId, showPending, cat
     const currentCategory = categories.find(c => c.id === selectedCategoryId)
 
     return (
-        <div className="w-full max-w-4xl mx-auto px-4 py-12">
+        <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-12">
             {/* Cabecera */}
-            <div className="flex items-center justify-between mb-12">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 sm:mb-12 gap-6">
                 <div>
-                    <h2 className="text-4xl font-black text-gray-800 tracking-tighter mb-2">
+                    <h2 className="text-3xl sm:text-4xl font-black text-gray-800 tracking-tighter mb-2">
                         {showPending ? 'Tareas Pendientes' : selectedCategoryId ? (currentCategory?.name || 'Categoría') : 'Mi Día'}
                     </h2>
-                    <div className="flex items-center text-gray-500 font-bold tracking-tight uppercase text-xs">
+                    <div className="flex items-center text-gray-500 font-bold tracking-tight uppercase text-[10px] sm:text-xs">
                         <Calendar className="w-3.5 h-3.5 mr-2" />
                         <span>{new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
                     </div>
                 </div>
-                <div className="text-right">
-                    <p className="text-gray-400 text-xs font-bold mb-1">{session.user.email}</p>
+                <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center w-full sm:w-auto gap-4">
+                    <p className="text-gray-400 text-[10px] sm:text-xs font-bold truncate max-w-[150px] sm:max-w-none">{session.user.email}</p>
                     <button
                         onClick={() => supabase.auth.signOut()}
-                        className="px-6 py-2 bg-[#ffcdd2] text-gray-700 font-black rounded-xl shadow-lg hover:shadow-xl transition-all text-[10px] uppercase tracking-widest"
+                        className="px-4 sm:px-6 py-2 bg-[#ffcdd2] text-gray-700 font-black rounded-xl shadow-lg hover:shadow-xl transition-all text-[10px] uppercase tracking-widest whitespace-nowrap"
                     >
-                        Cerrar Sesión
+                        Salir
                     </button>
                 </div>
             </div>

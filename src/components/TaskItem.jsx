@@ -52,7 +52,7 @@ export default function TaskItem({ task, onToggle, onTogglePending, onDelete }) 
     }
 
     return (
-        <div className={`group flex flex-col p-8 sm:p-10 bg-[#e1f5fe] transition-all duration-500 rounded-[2.5rem] border-none mb-6 shadow-xl shadow-[#e1f5fe]/20 hover:shadow-2xl hover:shadow-[#e1f5fe]/40 ${task.completed ? 'opacity-50 grayscale-[0.5]' : ''}`}>
+        <div className={`group flex flex-col p-6 sm:p-10 bg-[#e1f5fe] transition-all duration-500 rounded-[2rem] sm:rounded-[2.5rem] border-none mb-4 sm:mb-6 shadow-xl shadow-[#e1f5fe]/20 hover:shadow-2xl hover:shadow-[#e1f5fe]/40 ${task.completed ? 'opacity-50 grayscale-[0.5]' : ''}`}>
             {isEditing ? (
                 <div className="space-y-4 w-full">
                     <input
@@ -92,65 +92,65 @@ export default function TaskItem({ task, onToggle, onTogglePending, onDelete }) 
                         className="mt-1 flex-shrink-0 text-[#a0c4ff] hover:text-[#5390ef] transition-colors focus:outline-none"
                     >
                         {task.completed ? (
-                            <CheckCircle2 className="w-10 h-10 text-[#5390ef]" />
+                            <CheckCircle2 className="w-8 h-8 sm:w-10 sm:h-10 text-[#5390ef]" />
                         ) : (
-                            <Circle className="w-10 h-10" />
+                            <Circle className="w-8 h-8 sm:w-10 sm:h-10" />
                         )}
                     </button>
 
-                    <div className="ml-8 flex-1 min-w-0">
-                        <div className="flex items-center space-x-3 mb-2 flex-wrap gap-y-2">
+                    <div className="ml-4 sm:ml-8 flex-1 min-w-0">
+                        <div className="flex items-center space-x-2 sm:space-x-3 mb-2 flex-wrap gap-y-2">
                             {categoryName && (
-                                <span className="flex items-center px-3 py-1 bg-white/50 text-[#5390ef] rounded-lg text-[10px] font-black uppercase tracking-widest">
-                                    <Tag className="w-3 h-3 mr-1.5" />
+                                <span className="flex items-center px-2 sm:px-3 py-1 bg-white/50 text-[#5390ef] rounded-lg text-[8px] sm:text-[10px] font-black uppercase tracking-widest border border-white/20">
+                                    <Tag className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 sm:mr-1.5" />
                                     {categoryName}
                                 </span>
                             )}
                             {task.is_pending && (
-                                <span className="flex items-center px-3 py-1 bg-orange-100 text-orange-400 rounded-lg text-[10px] font-black uppercase tracking-widest">
-                                    <Clock className="w-3 h-3 mr-1.5" />
+                                <span className="flex items-center px-2 sm:px-3 py-1 bg-orange-100 text-orange-400 rounded-lg text-[8px] sm:text-[10px] font-black uppercase tracking-widest">
+                                    <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 sm:mr-1.5" />
                                     Pendiente
                                 </span>
                             )}
                             {task.due_date && (
-                                <span className="flex items-center px-3 py-1 bg-purple-100 text-purple-400 rounded-lg text-[10px] font-black uppercase tracking-widest border border-purple-200/30">
-                                    <Calendar className="w-3 h-3 mr-1.5" />
+                                <span className="flex items-center px-2 sm:px-3 py-1 bg-purple-100 text-purple-400 rounded-lg text-[8px] sm:text-[10px] font-black uppercase tracking-widest border border-purple-200/30">
+                                    <Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 sm:mr-1.5" />
                                     Vence: {formatDate(task.due_date)}
                                 </span>
                             )}
                         </div>
 
-                        <h3 className={`text-2xl transition-all ${task.completed ? 'text-gray-400 line-through font-extrabold' : 'text-gray-800 font-black'}`}>
+                        <h3 className={`text-xl sm:text-2xl transition-all ${task.completed ? 'text-gray-400 line-through font-extrabold' : 'text-gray-800 font-black'} break-words truncate sm:whitespace-normal`}>
                             {task.title}
                         </h3>
                         {task.description && (
-                            <p className={`mt-3 text-lg ${task.completed ? 'text-gray-400' : 'text-gray-600'} break-words leading-relaxed font-bold`}>
+                            <p className={`mt-2 sm:mt-3 text-base sm:text-lg ${task.completed ? 'text-gray-400' : 'text-gray-600'} break-words leading-relaxed font-bold line-clamp-3 sm:line-clamp-none`}>
                                 {task.description}
                             </p>
                         )}
                     </div>
 
-                    <div className="ml-6 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="ml-4 sm:ml-6 flex flex-col space-y-2 lg:opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                             onClick={() => onTogglePending(task)}
-                            className={`p-3 rounded-2xl transition-all ${task.is_pending ? 'bg-orange-100 text-orange-400 shadow-sm' : 'text-[#a0c4ff] hover:bg-white/40'}`}
+                            className={`p-2 sm:p-3 rounded-xl sm:rounded-2xl transition-all ${task.is_pending ? 'bg-orange-100 text-orange-400 shadow-sm' : 'text-[#a0c4ff] hover:bg-white/40'}`}
                             title={task.is_pending ? "Quitar de pendientes" : "Marcar como pendiente"}
                         >
-                            {task.is_pending ? <RotateCcw className="w-6 h-6" /> : <Clock className="w-6 h-6" />}
+                            {task.is_pending ? <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6" /> : <Clock className="w-5 h-5 sm:w-6 sm:h-6" />}
                         </button>
                         <button
                             onClick={() => setIsEditing(true)}
-                            className="p-3 text-[#a0c4ff] hover:text-[#5390ef] hover:bg-white/40 rounded-2xl transition-all"
+                            className="p-2 sm:p-3 text-[#a0c4ff] hover:text-[#5390ef] hover:bg-white/40 rounded-xl sm:rounded-2xl transition-all"
                             title="Editar tarea"
                         >
-                            <Edit2 className="w-6 h-6" />
+                            <Edit2 className="w-5 h-5 sm:w-6 sm:h-6" />
                         </button>
                         <button
                             onClick={() => onDelete(task.id)}
-                            className="p-3 text-[#a0c4ff] hover:text-red-400 hover:bg-red-50/40 rounded-2xl transition-all"
+                            className="p-2 sm:p-3 text-[#a0c4ff] hover:text-red-400 hover:bg-red-50/40 rounded-xl sm:rounded-2xl transition-all"
                             title="Eliminar tarea"
                         >
-                            <Trash2 className="w-6 h-6" />
+                            <Trash2 className="w-5 h-5 sm:w-6 sm:h-6" />
                         </button>
                     </div>
                 </div>

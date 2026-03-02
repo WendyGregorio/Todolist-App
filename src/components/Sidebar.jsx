@@ -57,11 +57,19 @@ const Sidebar = ({ onSelectCategory, selectedCategoryId, onSelectPending, showPe
     }
 
     return (
-        <div className="w-80 h-screen bg-[#e0f7fa]/30 backdrop-blur-xl flex flex-col p-6 border-r border-white/20 z-30">
-            <div className="mb-12">
+        <div className={`fixed lg:relative top-0 left-0 w-80 h-screen bg-[#e0f7fa]/80 lg:bg-[#e0f7fa]/30 backdrop-blur-2xl lg:backdrop-blur-xl flex flex-col p-6 border-r border-white/20 z-50 transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0'}`}>
+            <div className="mb-12 flex items-center justify-between">
                 <h1 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-gray-800 to-gray-500 tracking-tighter">
                     Mis Tareas
                 </h1>
+                <button
+                    onClick={onClose}
+                    className="lg:hidden p-2 hover:bg-white/50 rounded-xl text-gray-400 transition-all"
+                >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
 
             <div className="space-y-4 flex-1 overflow-y-auto pr-2 custom-scrollbar">
