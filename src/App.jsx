@@ -10,6 +10,7 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [selectedCategoryId, setSelectedCategoryId] = useState(null)
   const [showPending, setShowPending] = useState(false)
+  const [categories, setCategories] = useState([])
 
   useEffect(() => {
     if (!supabase) {
@@ -20,6 +21,9 @@ function App() {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
+      if (session) {
+        fetchCategories()
+      }
       setLoading(false)
     })
 
@@ -28,10 +32,30 @@ function App() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
+      if (session) {
+        fetchCategories()
+      }
     })
 
-    return () => subscription.unsubscribe()
+    // Categories subscription
+    const catChannel = supabase
+      .channel('public_categories')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, fetchCategories)
+      .subscribe()
+
+    return () => {
+      subscription.unsubscribe()
+      supabase.removeChannel(catChannel)
+    }
   }, [])
+
+  const fetchCategories = async () => {
+    const { data } = await supabase
+      .from('categories')
+      .select('*')
+      .order('name', { ascending: true })
+    if (data) setCategories(data)
+  }
 
   if (!supabase) {
     return (
@@ -76,6 +100,7 @@ function App() {
         selectedCategoryId={selectedCategoryId}
         onSelectPending={setShowPending}
         showPending={showPending}
+        categories={categories}
       />
 
       <div className="flex-1 relative overflow-y-auto overflow-x-hidden">
@@ -87,6 +112,7 @@ function App() {
             session={session}
             selectedCategoryId={selectedCategoryId}
             showPending={showPending}
+            categories={categories}
           />
         </div>
       </div>

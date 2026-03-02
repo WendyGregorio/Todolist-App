@@ -1,26 +1,17 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabaseClient'
-import { PlusCircle, Tag } from 'lucide-react'
+import { PlusCircle, Tag, Calendar } from 'lucide-react'
 
-export default function TaskForm({ onAdd, selectedCategoryId }) {
+export default function TaskForm({ onAdd, selectedCategoryId, categories }) {
     const [title, setTitle] = useState('')
     const [description, setDescription] = useState('')
     const [categoryId, setCategoryId] = useState(selectedCategoryId || '')
-    const [categories, setCategories] = useState([])
+    const [dueDate, setDueDate] = useState('')
     const [loading, setLoading] = useState(false)
 
     useEffect(() => {
-        fetchCategories()
         setCategoryId(selectedCategoryId || '')
     }, [selectedCategoryId])
-
-    const fetchCategories = async () => {
-        const { data } = await supabase
-            .from('categories')
-            .select('*')
-            .order('name', { ascending: true })
-        if (data) setCategories(data)
-    }
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -30,10 +21,12 @@ export default function TaskForm({ onAdd, selectedCategoryId }) {
         await onAdd({
             title,
             description,
-            category_id: categoryId || null
+            category_id: categoryId || null,
+            due_date: dueDate || null
         })
         setTitle('')
         setDescription('')
+        setDueDate('')
         setLoading(false)
     }
 
@@ -56,13 +49,13 @@ export default function TaskForm({ onAdd, selectedCategoryId }) {
                     className="w-full bg-[#fff2cc] border-none rounded-[1.25rem] px-8 py-5 text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-[#fff2cc]/50 transition-all resize-none shadow-sm text-lg font-bold"
                 />
 
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pt-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
                     <div className="flex items-center space-x-3 bg-white/40 px-6 py-3 rounded-2xl border border-white/20">
                         <Tag className="w-4 h-4 text-gray-400" />
                         <select
                             value={categoryId}
                             onChange={(e) => setCategoryId(e.target.value)}
-                            className="bg-transparent border-none text-sm font-black text-gray-600 focus:ring-0 cursor-pointer"
+                            className="bg-transparent border-none text-sm font-black text-gray-600 focus:ring-0 cursor-pointer w-full"
                         >
                             <option value="">Sin categoría</option>
                             {categories.map((cat) => (
@@ -73,6 +66,21 @@ export default function TaskForm({ onAdd, selectedCategoryId }) {
                         </select>
                     </div>
 
+                    <div className="flex items-center space-x-3 bg-white/40 px-6 py-3 rounded-2xl border border-white/20">
+                        <Calendar className="w-4 h-4 text-gray-400" />
+                        <div className="flex flex-col flex-1">
+                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Fecha Máxima</span>
+                            <input
+                                type="date"
+                                value={dueDate}
+                                onChange={(e) => setDueDate(e.target.value)}
+                                className="bg-transparent border-none text-sm font-black text-gray-600 focus:ring-0 cursor-pointer w-full p-0"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex justify-end pt-4">
                     <button
                         type="submit"
                         disabled={loading || !title.trim()}

@@ -20,6 +20,7 @@ create table categories (
 -- Update tasks table
 alter table tasks add column category_id uuid references categories(id) on delete set null;
 alter table tasks add column is_pending boolean default false;
+alter table tasks add column due_date timestamp with time zone;
 
 -- Enable RLS for categories
 alter table categories enable row level security;

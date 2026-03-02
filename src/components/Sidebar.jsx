@@ -1,49 +1,31 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import {
     Plus,
     Hash,
     Clock,
-    Folder,
     MoreVertical,
     Trash2,
     Edit3,
     List
 } from 'lucide-react'
 
-const Sidebar = ({ onSelectCategory, selectedCategoryId, onSelectPending, showPending }) => {
-    const [categories, setCategories] = useState([])
+const Sidebar = ({ onSelectCategory, selectedCategoryId, onSelectPending, showPending, categories }) => {
     const [newCategoryName, setNewCategoryName] = useState('')
     const [isAdding, setIsAdding] = useState(false)
     const [editingId, setEditingId] = useState(null)
     const [editName, setEditName] = useState('')
 
-    useEffect(() => {
-        fetchCategories()
-        const subscription = supabase
-            .channel('categories_changes')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, fetchCategories)
-            .subscribe()
-
-        return () => subscription.unsubscribe()
-    }, [])
-
-    const fetchCategories = async () => {
-        const { data, error } = await supabase
-            .from('categories')
-            .select('*')
-            .order('created_at', { ascending: true })
-        if (data) setCategories(data)
-    }
-
     const handleAddCategory = async (e) => {
         e.preventDefault()
         if (!newCategoryName.trim()) return
 
-        const { data: { user } } = await supabase.auth.getSession()
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) return
+
         const { error } = await supabase
             .from('categories')
-            .insert([{ name: newCategoryName, user_id: user.id }])
+            .insert([{ name: newCategoryName, user_id: session.user.id }])
 
         if (!error) {
             setNewCategoryName('')
@@ -52,10 +34,14 @@ const Sidebar = ({ onSelectCategory, selectedCategoryId, onSelectPending, showPe
     }
 
     const handleDeleteCategory = async (id) => {
-        const { error } = await supabase
+        await supabase
             .from('categories')
             .delete()
             .eq('id', id)
+
+        if (selectedCategoryId === id) {
+            onSelectCategory(null)
+        }
     }
 
     const handleUpdateCategory = async (id) => {
@@ -71,7 +57,7 @@ const Sidebar = ({ onSelectCategory, selectedCategoryId, onSelectPending, showPe
     }
 
     return (
-        <div className="w-80 h-screen bg-[#e0f7fa]/30 backdrop-blur-xl flex flex-col p-6 border-r border-white/20">
+        <div className="w-80 h-screen bg-[#e0f7fa]/30 backdrop-blur-xl flex flex-col p-6 border-r border-white/20 z-30">
             <div className="mb-12">
                 <h1 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-gray-800 to-gray-500 tracking-tighter">
                     Mis Tareas
@@ -85,8 +71,8 @@ const Sidebar = ({ onSelectCategory, selectedCategoryId, onSelectPending, showPe
                         onSelectPending(false)
                     }}
                     className={`w-full flex items-center space-x-4 px-6 py-4 rounded-2xl transition-all duration-300 font-bold ${!selectedCategoryId && !showPending
-                            ? 'bg-[#fff9c4] text-gray-800 shadow-lg scale-[1.02]'
-                            : 'hover:bg-white/40 text-gray-500'
+                        ? 'bg-[#fff9c4] text-gray-800 shadow-lg scale-[1.02]'
+                        : 'hover:bg-white/40 text-gray-500'
                         }`}
                 >
                     <List className="w-5 h-5" />
@@ -99,8 +85,8 @@ const Sidebar = ({ onSelectCategory, selectedCategoryId, onSelectPending, showPe
                         onSelectPending(true)
                     }}
                     className={`w-full flex items-center space-x-4 px-6 py-4 rounded-2xl transition-all duration-300 font-bold ${showPending
-                            ? 'bg-[#ffe5d9] text-gray-800 shadow-lg scale-[1.02]'
-                            : 'hover:bg-white/40 text-gray-500'
+                        ? 'bg-[#ffe5d9] text-gray-800 shadow-lg scale-[1.02]'
+                        : 'hover:bg-white/40 text-gray-500'
                         }`}
                 >
                     <Clock className="w-5 h-5" />
@@ -126,7 +112,7 @@ const Sidebar = ({ onSelectCategory, selectedCategoryId, onSelectPending, showPe
                                 value={newCategoryName}
                                 onChange={(e) => setNewCategoryName(e.target.value)}
                                 placeholder="Nueva categoría..."
-                                className="w-full bg-white/60 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#e0f7fa] transition-all font-bold placeholder:font-medium"
+                                className="w-full bg-white/60 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#e0f7fa] transition-all font-bold placeholder:font-medium placeholder-gray-400"
                             />
                         </form>
                     )}
@@ -151,27 +137,27 @@ const Sidebar = ({ onSelectCategory, selectedCategoryId, onSelectPending, showPe
                                                 onSelectPending(false)
                                             }}
                                             className={`flex-1 flex items-center space-x-4 px-6 py-4 rounded-2xl transition-all duration-300 font-bold ${selectedCategoryId === cat.id
-                                                    ? 'bg-[#e1f5fe] text-gray-800 shadow-lg scale-[1.02]'
-                                                    : 'hover:bg-white/40 text-gray-500'
+                                                ? 'bg-[#e1f5fe] text-gray-800 shadow-lg scale-[1.02]'
+                                                : 'hover:bg-white/40 text-gray-500'
                                                 }`}
                                         >
                                             <Hash className="w-4 h-4" />
                                             <span className="truncate">{cat.name}</span>
                                         </button>
 
-                                        <div className="flex opacity-0 group-hover:opacity-100 transition-opacity pr-2">
+                                        <div className="flex opacity-0 group-hover:opacity-100 transition-opacity pr-2 space-x-1">
                                             <button
                                                 onClick={() => {
                                                     setEditingId(cat.id)
                                                     setEditName(cat.name)
                                                 }}
-                                                className="p-1.5 hover:text-gray-700 text-gray-400"
+                                                className="p-1.5 hover:bg-white/50 rounded-lg text-gray-400 hover:text-gray-600 transition-all"
                                             >
                                                 <Edit3 className="w-4 h-4" />
                                             </button>
                                             <button
                                                 onClick={() => handleDeleteCategory(cat.id)}
-                                                className="p-1.5 hover:text-red-500 text-gray-400"
+                                                className="p-1.5 hover:bg-red-50 rounded-lg text-gray-400 hover:text-red-500 transition-all"
                                             >
                                                 <Trash2 className="w-4 h-4" />
                                             </button>

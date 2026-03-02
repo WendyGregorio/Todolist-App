@@ -4,7 +4,7 @@ import TaskForm from './TaskForm'
 import TaskItem from './TaskItem'
 import { Search, Loader2, Calendar } from 'lucide-react'
 
-export default function TaskList({ session, selectedCategoryId, showPending }) {
+export default function TaskList({ session, selectedCategoryId, showPending, categories }) {
     const [tasks, setTasks] = useState([])
     const [loading, setLoading] = useState(true)
     const [filter, setFilter] = useState('all') // 'all', 'active', 'completed'
@@ -14,7 +14,7 @@ export default function TaskList({ session, selectedCategoryId, showPending }) {
         fetchTasks()
 
         const channel = supabase
-            .channel('tasks_channel')
+            .channel('tasks_changes')
             .on(
                 'postgres_changes',
                 {
@@ -45,8 +45,13 @@ export default function TaskList({ session, selectedCategoryId, showPending }) {
                 query = query.eq('category_id', selectedCategoryId)
             }
 
+            // Lógica de "Movimiento":
+            // Si estamos en Tareas Pendientes, solo mostramos las pendientes.
+            // Si NO estamos en Tareas Pendientes, ocultamos las pendientes de la lista principal.
             if (showPending) {
                 query = query.eq('is_pending', true)
+            } else {
+                query = query.eq('is_pending', false)
             }
 
             const { data, error } = await query
@@ -65,7 +70,8 @@ export default function TaskList({ session, selectedCategoryId, showPending }) {
                 {
                     ...taskData,
                     user_id: session.user.id,
-                    category_id: selectedCategoryId || null
+                    // Usar la categoría seleccionada si no viene una del form
+                    category_id: taskData.category_id || selectedCategoryId || null
                 },
             ])
             if (error) throw error
@@ -122,13 +128,16 @@ export default function TaskList({ session, selectedCategoryId, showPending }) {
 
     const activeCount = tasks.filter((t) => !t.completed).length
 
+    // Obtener nombre de la categoría actual
+    const currentCategory = categories.find(c => c.id === selectedCategoryId)
+
     return (
         <div className="w-full max-w-4xl mx-auto px-4 py-12">
             {/* Cabecera */}
             <div className="flex items-center justify-between mb-12">
                 <div>
                     <h2 className="text-4xl font-black text-gray-800 tracking-tighter mb-2">
-                        {showPending ? 'Tareas Pendientes' : selectedCategoryId ? 'Categoría' : 'Mi Día'}
+                        {showPending ? 'Tareas Pendientes' : selectedCategoryId ? (currentCategory?.name || 'Categoría') : 'Mi Día'}
                     </h2>
                     <div className="flex items-center text-gray-500 font-bold tracking-tight uppercase text-xs">
                         <Calendar className="w-3.5 h-3.5 mr-2" />
@@ -146,7 +155,11 @@ export default function TaskList({ session, selectedCategoryId, showPending }) {
                 </div>
             </div>
 
-            <TaskForm onAdd={handleAddTask} selectedCategoryId={selectedCategoryId} />
+            <TaskForm
+                onAdd={handleAddTask}
+                selectedCategoryId={selectedCategoryId}
+                categories={categories}
+            />
 
             {/* Filtros y Búsqueda */}
             <div className="bg-[#e0f7fa] rounded-[2rem] p-4 mb-10 flex flex-col md:flex-row items-center justify-between gap-6 border border-white/40 shadow-xl shadow-[#e0f7fa]/20">
@@ -160,7 +173,7 @@ export default function TaskList({ session, selectedCategoryId, showPending }) {
                             key={f.id}
                             onClick={() => setFilter(f.id)}
                             className={`flex-1 md:flex-none px-8 py-3.5 rounded-xl text-sm font-black transition-all duration-300 ${filter === f.id
-                                ? 'bg-[#fff9c4] text-gray-700 shadow-lg scale-[1.02]'
+                                ? 'bg-[#fff9c4] text-gray-800 shadow-lg scale-[1.02]'
                                 : 'text-gray-500 hover:text-gray-700'
                                 }`}
                         >

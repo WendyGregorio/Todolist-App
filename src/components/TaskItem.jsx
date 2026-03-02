@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabaseClient'
-import { CheckCircle2, Circle, Trash2, Edit2, Clock, Tag, Save, RotateCcw } from 'lucide-react'
+import { CheckCircle2, Circle, Trash2, Edit2, Clock, Tag, Save, RotateCcw, Calendar } from 'lucide-react'
 
 export default function TaskItem({ task, onToggle, onTogglePending, onDelete }) {
     const [isEditing, setIsEditing] = useState(false)
@@ -42,6 +42,13 @@ export default function TaskItem({ task, onToggle, onTogglePending, onDelete }) 
         setEditTitle(task.title)
         setEditDescription(task.description || '')
         setIsEditing(false)
+    }
+
+    // Formatear fecha para mostrar
+    const formatDate = (dateString) => {
+        if (!dateString) return null
+        const date = new Date(dateString)
+        return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
     }
 
     return (
@@ -105,6 +112,12 @@ export default function TaskItem({ task, onToggle, onTogglePending, onDelete }) 
                                     Pendiente
                                 </span>
                             )}
+                            {task.due_date && (
+                                <span className="flex items-center px-3 py-1 bg-purple-100 text-purple-400 rounded-lg text-[10px] font-black uppercase tracking-widest border border-purple-200/30">
+                                    <Calendar className="w-3 h-3 mr-1.5" />
+                                    Vence: {formatDate(task.due_date)}
+                                </span>
+                            )}
                         </div>
 
                         <h3 className={`text-2xl transition-all ${task.completed ? 'text-gray-400 line-through font-extrabold' : 'text-gray-800 font-black'}`}>
@@ -115,15 +128,12 @@ export default function TaskItem({ task, onToggle, onTogglePending, onDelete }) 
                                 {task.description}
                             </p>
                         )}
-                        <div className="mt-6 flex items-center text-[10px] text-gray-400 font-black tracking-widest uppercase">
-                            <span>{new Date(task.created_at).toLocaleDateString('es-ES')}</span>
-                        </div>
                     </div>
 
                     <div className="ml-6 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                             onClick={() => onTogglePending(task)}
-                            className={`p-3 rounded-2xl transition-all ${task.is_pending ? 'bg-orange-100 text-orange-400' : 'text-[#a0c4ff] hover:bg-white/40'}`}
+                            className={`p-3 rounded-2xl transition-all ${task.is_pending ? 'bg-orange-100 text-orange-400 shadow-sm' : 'text-[#a0c4ff] hover:bg-white/40'}`}
                             title={task.is_pending ? "Quitar de pendientes" : "Marcar como pendiente"}
                         >
                             {task.is_pending ? <RotateCcw className="w-6 h-6" /> : <Clock className="w-6 h-6" />}
