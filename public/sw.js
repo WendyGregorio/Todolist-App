@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cloud-task-v2';
+const CACHE_NAME = 'cloud-task-v4';
 const ASSETS = [
     '/',
     '/index.html',
@@ -28,20 +28,39 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
+});
+
 self.addEventListener('fetch', (event) => {
-    // Only handle GET requests
     if (event.request.method !== 'GET') return;
 
+    const url = new URL(event.request.url);
+
+    // Network-First strategy for main pages to ensure updates are seen
+    if (event.request.mode === 'navigate' || url.pathname === '/' || url.pathname === '/index.html') {
+        event.respondWith(
+            fetch(event.request)
+                .then((response) => {
+                    const copy = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+                    return response;
+                })
+                .catch(() => caches.match('/index.html') || caches.match('/'))
+        );
+        return;
+    }
+
+    // Cache-First for assets
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
-            if (cachedResponse) {
-                return cachedResponse;
-            }
-            return fetch(event.request).catch(() => {
-                // If both fail, and it's a navigation request, return index.html
-                if (event.request.mode === 'navigate') {
-                    return caches.match('/');
-                }
+            if (cachedResponse) return cachedResponse;
+            return fetch(event.request).then((response) => {
+                const copy = response.clone();
+                caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+                return response;
             });
         })
     );
