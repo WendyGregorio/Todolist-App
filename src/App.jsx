@@ -65,27 +65,13 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-4 md:p-8 relative overflow-hidden">
-      {/* Ambient backgrounds */}
-      <div className="fixed top-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-primary-200 rounded-full mix-blend-multiply filter blur-[128px] opacity-40 animate-blob pointer-events-none"></div>
-      <div className="fixed top-[20%] right-[-10%] w-[40rem] h-[40rem] bg-accent-orange rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-blob animation-delay-2000 pointer-events-none"></div>
+    <div className="min-h-screen bg-[#fcfdfe] relative overflow-hidden font-sans antialiased text-gray-900">
+      {/* Subtle ambient lighting matched to reference */}
+      <div className="fixed top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_0%,_#f8f9fb_0%,_transparent_100%)] pointer-events-none"></div>
 
-      <div className="max-w-4xl mx-auto flex items-center justify-between mb-8 relative z-10">
-        <div>
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-accent-orange">
-            Cloud Tasks
-          </h1>
-          <p className="text-gray-500 text-sm mt-1">{session.user.email}</p>
-        </div>
-        <button
-          onClick={() => supabase.auth.signOut()}
-          className="px-4 py-2 bg-white/80 hover:bg-gray-50/80 backdrop-blur-md rounded-xl text-sm font-medium text-gray-700 transition-colors border border-gray-200 hover:border-gray-300 shadow-sm"
-        >
-          Sign Out
-        </button>
+      <div className="relative z-10">
+        <TaskList session={session} />
       </div>
-
-      <TaskList session={session} />
     </div>
   )
 }

@@ -126,41 +126,54 @@ export default function TaskList({ session }) {
     const completedCount = tasks.filter((t) => t.completed).length
 
     return (
-        <div className="w-full max-w-3xl mx-auto mt-8 relative z-10">
+        <div className="w-full max-w-4xl mx-auto px-4 py-8">
+            {/* Navigation Bar */}
+            <div className="flex items-center justify-between mb-12">
+                <span className="text-gray-400 text-sm font-medium">{session.user.email}</span>
+                <button
+                    onClick={() => supabase.auth.signOut()}
+                    className="px-6 py-2 bg-white text-gray-700 font-semibold rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-gray-100 hover:shadow-md transition-all text-sm"
+                >
+                    Sign Out
+                </button>
+            </div>
+
             <TaskForm onAdd={handleAddTask} />
 
             {/* Filters and Search */}
-            <div className="bg-white/80 backdrop-blur-md border border-gray-200 rounded-[1.5rem] p-4 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
-                <div className="flex space-x-1 bg-gray-100 p-1.5 rounded-[1.25rem] w-full sm:w-auto">
+            <div className="bg-[#f8f9fb] rounded-3xl p-3 mb-8 flex flex-col md:flex-row items-center justify-between gap-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+                <div className="flex space-x-1 w-full md:w-auto">
                     {['all', 'active', 'completed'].map((f) => (
                         <button
                             key={f}
                             onClick={() => setFilter(f)}
-                            className={`flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-sm font-semibold capitalize transition-all duration-200 ${filter === f
-                                    ? 'bg-white text-primary-600 shadow-sm'
-                                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
+                            className={`flex-1 md:flex-none px-6 py-3 rounded-2xl text-sm font-bold capitalize transition-all duration-300 ${filter === f
+                                ? 'bg-white text-gray-800 shadow-[0_4px_12px_rgba(0,0,0,0.08)]'
+                                : 'text-gray-400 hover:text-gray-600'
                                 }`}
                         >
-                            {f}
-                            {f === 'active' && activeCount > 0 && (
-                                <span className="ml-1.5 text-xs bg-gray-200 text-gray-700 px-2 py-0.5 rounded-md font-bold">
-                                    {activeCount}
-                                </span>
-                            )}
+                            {f === 'active' ? (
+                                <div className="flex items-center">
+                                    Active
+                                    <span className="ml-2 bg-[#eaebef] text-gray-600 px-2.5 py-0.5 rounded-lg text-xs">
+                                        {activeCount}
+                                    </span>
+                                </div>
+                            ) : f}
                         </button>
                     ))}
                 </div>
 
-                <div className="relative w-full sm:w-72">
+                <div className="relative w-full md:w-80">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <Search className="h-5 w-5 text-gray-400" />
+                        <Search className="h-5 w-5 text-gray-300" />
                     </div>
                     <input
                         type="text"
                         placeholder="Search tasks..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-2xl text-sm text-foreground placeholder-gray-400 focus:outline-none focus:border-accent-green focus:ring-4 focus:ring-accent-green/10 transition-all duration-200 shadow-sm"
+                        className="w-full pl-12 pr-4 py-3.5 bg-white border border-gray-100 rounded-2xl text-sm text-gray-700 placeholder-gray-300 focus:outline-none focus:ring-4 focus:ring-gray-100/50 transition-all shadow-sm"
                     />
                 </div>
             </div>
