@@ -10,7 +10,7 @@ import {
     List
 } from 'lucide-react'
 
-const Sidebar = ({ onSelectCategory, selectedCategoryId, onSelectPending, showPending, categories }) => {
+const Sidebar = ({ onSelectCategory, selectedCategoryId, onSelectPending, showPending, categories, isOpen, onClose }) => {
     const [newCategoryName, setNewCategoryName] = useState('')
     const [isAdding, setIsAdding] = useState(false)
     const [editingId, setEditingId] = useState(null)

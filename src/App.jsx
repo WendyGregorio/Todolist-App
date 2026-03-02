@@ -92,11 +92,9 @@ function App() {
 
   return (
     <div className="flex h-screen bg-[#f5e6ff] font-sans antialiased text-gray-800 overflow-hidden relative">
-      {/* Background blobs for vibrancy */}
       <div className="fixed top-[-10%] left-[-10%] w-[30rem] h-[30rem] bg-pink-200/20 rounded-full blur-[100px] pointer-events-none z-0"></div>
       <div className="fixed bottom-[-10%] right-[-10%] w-[30rem] h-[30rem] bg-blue-200/20 rounded-full blur-[100px] pointer-events-none z-0"></div>
 
-      {/* Mobile Overlay */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300"
@@ -121,7 +119,6 @@ function App() {
       />
 
       <div className="flex-1 relative overflow-y-auto overflow-x-hidden flex flex-col">
-        {/* Mobile Header */}
         <div className="lg:hidden flex items-center justify-between p-6 bg-white/30 backdrop-blur-md border-b border-white/20 sticky top-0 z-30">
           <h1 className="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-gray-800 to-gray-500 tracking-tighter">
             {showPending ? 'Pendientes' : selectedCategoryId ? (categories.find(c => c.id === selectedCategoryId)?.name || 'Categoría') : 'Mi Día'}
@@ -136,7 +133,6 @@ function App() {
           </button>
         </div>
 
-        {/* Subtle ambient lighting */}
         <div className="absolute top-0 left-0 w-full h-[300px] bg-gradient-to-b from-white/30 to-transparent pointer-events-none"></div>
 
         <div className="relative z-10 flex-1">
