@@ -162,43 +162,45 @@ export default function TaskList({ session, selectedCategoryId, showPending, cat
             />
 
             {/* Filtros y Búsqueda */}
-            <div className="bg-[#e0f7fa] rounded-[2rem] p-4 mb-10 flex flex-col md:flex-row items-center justify-between gap-6 border border-white/40 shadow-xl shadow-[#e0f7fa]/20">
-                <div className="flex space-x-2 w-full md:w-auto p-1 bg-[#b2dfdb]/20 rounded-2xl">
-                    {[
-                        { id: 'all', label: 'Todas' },
-                        { id: 'active', label: 'Activas' },
-                        { id: 'completed', label: 'Completadas' }
-                    ].map((f) => (
-                        <button
-                            key={f.id}
-                            onClick={() => setFilter(f.id)}
-                            className={`flex-1 md:flex-none px-8 py-3.5 rounded-xl text-sm font-black transition-all duration-300 ${filter === f.id
-                                ? 'bg-[#fff9c4] text-gray-800 shadow-lg scale-[1.02]'
-                                : 'text-gray-500 hover:text-gray-700'
-                                }`}
-                        >
-                            {f.id === 'active' ? (
-                                <div className="flex items-center">
-                                    {f.label}
-                                    <span className="ml-2 bg-[#e0f2f1] text-gray-600 px-2 py-0.5 rounded-lg text-xs font-bold">
-                                        {activeCount}
-                                    </span>
-                                </div>
-                            ) : f.label}
-                        </button>
-                    ))}
+            <div className="bg-[#e0f7fa] rounded-[1.5rem] sm:rounded-[2rem] p-3 sm:p-4 mb-8 sm:mb-10 flex flex-col items-stretch gap-4 sm:gap-6 border border-white/40 shadow-xl shadow-[#e0f7fa]/20">
+                <div className="flex overflow-x-auto pb-2 sm:pb-0 hide-scrollbar -mx-1 px-1">
+                    <div className="flex space-x-2 bg-[#b2dfdb]/20 p-1 rounded-xl sm:rounded-2xl min-w-max">
+                        {[
+                            { id: 'all', label: 'Todas' },
+                            { id: 'active', label: 'Activas' },
+                            { id: 'completed', label: 'Completas' }
+                        ].map((f) => (
+                            <button
+                                key={f.id}
+                                onClick={() => setFilter(f.id)}
+                                className={`px-4 sm:px-8 py-2.5 sm:py-3.5 rounded-lg sm:rounded-xl text-[10px] sm:text-sm font-black transition-all duration-300 whitespace-nowrap ${filter === f.id
+                                    ? 'bg-[#fff9c4] text-gray-800 shadow-md sm:shadow-lg scale-[1.02]'
+                                    : 'text-gray-500 hover:text-gray-700'
+                                    }`}
+                            >
+                                {f.id === 'active' ? (
+                                    <div className="flex items-center">
+                                        {f.label}
+                                        <span className="ml-1.5 sm:ml-2 bg-[#e0f2f1] text-gray-600 px-1.5 sm:px-2 py-0.5 rounded-md sm:rounded-lg text-[9px] sm:text-xs font-bold">
+                                            {activeCount}
+                                        </span>
+                                    </div>
+                                ) : f.label}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
-                <div className="relative w-full md:w-96">
-                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                        <Search className="h-5 w-5 text-gray-400" />
+                <div className="relative w-full">
+                    <div className="absolute inset-y-0 left-0 pl-4 sm:pl-5 flex items-center pointer-events-none">
+                        <Search className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                     </div>
                     <input
                         type="text"
                         placeholder="Buscar tareas..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-14 pr-6 py-4 bg-[#b2dfdb]/30 border-none rounded-2xl text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-[#b2dfdb]/40 transition-all font-bold"
+                        className="w-full pl-11 sm:pl-14 pr-4 sm:pr-6 py-3 sm:py-4 bg-[#b2dfdb]/30 border-none rounded-xl sm:rounded-2xl text-[11px] sm:text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-[#b2dfdb]/40 transition-all font-bold"
                     />
                 </div>
             </div>
