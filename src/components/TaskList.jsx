@@ -129,10 +129,10 @@ export default function TaskList({ session }) {
         <div className="w-full max-w-4xl mx-auto px-4 py-8">
             {/* Navigation Bar */}
             <div className="flex items-center justify-between mb-12">
-                <span className="text-gray-400 text-sm font-medium">{session.user.email}</span>
+                <span className="text-gray-500 text-sm font-semibold">{session.user.email}</span>
                 <button
                     onClick={() => supabase.auth.signOut()}
-                    className="px-6 py-2 bg-white text-gray-700 font-semibold rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-gray-100 hover:shadow-md transition-all text-sm"
+                    className="px-8 py-3 bg-[#ffcdd2] text-gray-700 font-bold rounded-2xl shadow-[0_4px_12px_rgba(255,205,210,0.3)] hover:shadow-md transition-all text-sm border-none"
                 >
                     Sign Out
                 </button>
@@ -141,21 +141,21 @@ export default function TaskList({ session }) {
             <TaskForm onAdd={handleAddTask} />
 
             {/* Filters and Search */}
-            <div className="bg-[#f8f9fb] rounded-3xl p-3 mb-8 flex flex-col md:flex-row items-center justify-between gap-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
-                <div className="flex space-x-1 w-full md:w-auto">
+            <div className="bg-[#e0f7fa] rounded-[2rem] p-4 mb-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-[0_8px_30px_rgb(224,247,250,0.3)]">
+                <div className="flex space-x-2 w-full md:w-auto p-1 bg-[#b2dfdb]/20 rounded-2xl">
                     {['all', 'active', 'completed'].map((f) => (
                         <button
                             key={f}
                             onClick={() => setFilter(f)}
-                            className={`flex-1 md:flex-none px-6 py-3 rounded-2xl text-sm font-bold capitalize transition-all duration-300 ${filter === f
-                                ? 'bg-white text-gray-800 shadow-[0_4px_12px_rgba(0,0,0,0.08)]'
-                                : 'text-gray-400 hover:text-gray-600'
+                            className={`flex-1 md:flex-none px-8 py-3.5 rounded-xl text-sm font-extrabold capitalize transition-all duration-300 ${filter === f
+                                ? 'bg-[#fff9c4] text-gray-700 shadow-[0_4px_15px_rgba(255,249,196,0.6)] scale-[1.02]'
+                                : 'text-gray-500 hover:text-gray-700'
                                 }`}
                         >
                             {f === 'active' ? (
                                 <div className="flex items-center">
                                     Active
-                                    <span className="ml-2 bg-[#eaebef] text-gray-600 px-2.5 py-0.5 rounded-lg text-xs">
+                                    <span className="ml-2 bg-[#e0f2f1] text-gray-600 px-2 py-0.5 rounded-lg text-xs font-bold">
                                         {activeCount}
                                     </span>
                                 </div>
@@ -164,16 +164,16 @@ export default function TaskList({ session }) {
                     ))}
                 </div>
 
-                <div className="relative w-full md:w-80">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <Search className="h-5 w-5 text-gray-300" />
+                <div className="relative w-full md:w-96">
+                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                        <Search className="h-5 w-5 text-gray-400" />
                     </div>
                     <input
                         type="text"
                         placeholder="Search tasks..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3.5 bg-white border border-gray-100 rounded-2xl text-sm text-gray-700 placeholder-gray-300 focus:outline-none focus:ring-4 focus:ring-gray-100/50 transition-all shadow-sm"
+                        className="w-full pl-14 pr-6 py-4 bg-[#b2dfdb] border-none rounded-2xl text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-[#b2dfdb]/40 transition-all font-medium"
                     />
                 </div>
             </div>

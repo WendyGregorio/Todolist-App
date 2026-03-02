@@ -65,9 +65,9 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fcfdfe] relative overflow-hidden font-sans antialiased text-gray-900">
+    <div className="min-h-screen bg-[#f5e6ff] relative overflow-hidden font-sans antialiased text-gray-800">
       {/* Subtle ambient lighting matched to reference */}
-      <div className="fixed top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_0%,_#f8f9fb_0%,_transparent_100%)] pointer-events-none"></div>
+      <div className="fixed top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_0%,_#ffffff_0%,_transparent_100%)] opacity-30 pointer-events-none"></div>
 
       <div className="relative z-10">
         <TaskList session={session} />
