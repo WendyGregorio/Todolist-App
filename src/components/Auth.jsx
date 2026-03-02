@@ -33,119 +33,115 @@ export default function Auth() {
                 if (error) throw error
                 setMessage({
                     type: 'success',
-                    text: 'Registration successful! Check your email.',
+                    text: '¡Registro exitoso! Por favor verifica tu correo electrónico.',
                 })
             }
         } catch (error) {
-            setMessage({ type: 'error', text: error.message || 'An error occurred' })
+            setMessage({ type: 'error', text: error.message || 'Ocurrió un error inesperado' })
         } finally {
             setLoading(false)
         }
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#f5f7f9] p-4 relative overflow-hidden">
-            {/* Ambient Background to ground the floating card */}
-            <div className="absolute inset-0 pointer-events-none"></div>
+        <div className="min-h-screen flex items-center justify-center bg-[#f5e6ff] p-4 relative overflow-hidden">
+            {/* Ambient Background blobs */}
+            <div className="absolute top-[-10%] left-[-10%] w-[30rem] h-[30rem] bg-yellow-200/20 rounded-full blur-[100px] pointer-events-none"></div>
+            <div className="absolute bottom-[-10%] right-[-10%] w-[30rem] h-[30rem] bg-orange-200/20 rounded-full blur-[100px] pointer-events-none"></div>
 
             {/* The Main Split Container */}
-            <div className={`relative w-full max-w-[900px] min-h-[550px] bg-white rounded-[2rem] shadow-2xl flex flex-col md:flex-row overflow-hidden transition-all duration-700 ease-in-out ${isLogin ? 'md:flex-row-reverse' : ''}`}>
+            <div className={`relative w-full max-w-[900px] min-h-[550px] bg-white/80 backdrop-blur-xl rounded-[3rem] shadow-2xl flex flex-col md:flex-row overflow-hidden transition-all duration-700 ease-in-out border border-white/20 ${isLogin ? 'md:flex-row-reverse' : ''}`}>
 
-                {/* Colored Panel (Yellow as requested) */}
+                {/* Colored Panel */}
                 <div className="relative w-full md:w-[45%] bg-[#FACC15] flex flex-col justify-center items-center p-12 text-center z-20">
-                    <h2 className="text-4xl font-extrabold text-white mb-6">
-                        {isLogin ? '¡Hola, amigo!' : '¡Hola!'}
+                    <h2 className="text-4xl font-black text-white mb-6 uppercase tracking-tighter shadow-sm">
+                        {isLogin ? '¡Bienvenido!' : '¡Hola!'}
                     </h2>
-                    <p className="text-white text-sm mb-12 leading-relaxed font-medium px-4">
+                    <p className="text-white text-sm mb-12 leading-relaxed font-black px-4 uppercase tracking-widest opacity-90">
                         {isLogin
-                            ? 'Para mantenerte conectado con nosotros, inicia sesión con tu información personal'
-                            : 'Regístrese con sus datos personales para utilizar todas las funciones del sitio'}
+                            ? 'Mantente conectado con nosotros, inicia sesión con tu cuenta personal'
+                            : 'Regístrate con tus datos personales para acceder a todas las funciones'}
                     </p>
                     <button
                         type="button"
                         onClick={() => { setIsLogin(!isLogin); setMessage({ type: '', text: '' }); setName('') }}
-                        className="py-3 px-10 border-2 border-white text-white rounded-full font-bold tracking-wide hover:bg-white hover:text-[#FACC15] transition-colors focus:outline-none"
+                        className="py-4 px-12 border-4 border-white text-white rounded-2xl font-black tracking-widest hover:bg-white hover:text-[#FACC15] transition-all duration-300 focus:outline-none uppercase text-xs"
                     >
-                        {isLogin ? 'REGISTRARSE' : 'Iniciar sesión'}
+                        {isLogin ? 'Crear cuenta' : 'Ya tengo cuenta'}
                     </button>
-
-                    {/* The Curved Intersection Effect matching the image */}
-                    <div className={`hidden md:block absolute top-[50%] -translate-y-1/2 ${isLogin ? 'left-[-15%]' : 'right-[-25%]'} w-[50%] h-[120%] bg-[#FACC15] rounded-[100%] -z-10 transition-all duration-700`}></div>
                 </div>
 
                 {/* White Panel (Form Area) */}
-                <div className="relative w-full md:w-[55%] bg-white p-10 md:p-14 flex flex-col justify-center items-center z-10 transition-all duration-500">
+                <div className="relative w-full md:w-[55%] bg-white/40 p-10 md:p-14 flex flex-col justify-center items-center z-10 transition-all duration-500">
 
-                    <h2 className="text-3xl font-bold text-gray-900 mb-6 tracking-tight">
-                        {isLogin ? 'Iniciar sesión' : 'Registrarse'}
+                    <h2 className="text-3xl font-black text-gray-800 mb-8 tracking-tighter uppercase">
+                        {isLogin ? 'Iniciar Sesión' : 'Registro'}
                     </h2>
 
-
-
                     {message.text && (
-                        <div className={`w-full p-3 rounded-lg mb-6 text-xs font-bold text-center border ${message.type === 'error' ? 'bg-red-50 border-red-200 text-red-600' : 'bg-green-50 border-green-200 text-green-600'
+                        <div className={`w-full p-4 rounded-2xl mb-8 text-[11px] font-black text-center border uppercase tracking-widest ${message.type === 'error' ? 'bg-red-50/50 border-red-200 text-red-500' : 'bg-green-50/50 border-green-200 text-green-500'
                             }`}>
                             {message.text}
                         </div>
                     )}
 
-                    <form onSubmit={handleAuth} className="w-full max-w-[320px] space-y-4">
+                    <form onSubmit={handleAuth} className="w-full max-w-[320px] space-y-5">
                         {!isLogin && (
                             <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <User className="h-4 w-4 text-gray-400 group-focus-within:text-[#FACC15]" />
+                                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                                    <User className="h-4 w-4 text-gray-400" />
                                 </div>
                                 <input
                                     type="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    placeholder="Nombre"
+                                    placeholder="Nombre Completo"
                                     required={!isLogin}
-                                    className="w-full pl-11 pr-4 py-3 bg-[#F3F4F6] border border-transparent rounded-md text-gray-800 text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-[#FACC15] transition-all font-medium placeholder-gray-400"
+                                    className="w-full pl-12 pr-6 py-4 bg-white/60 border border-transparent rounded-[1.25rem] text-gray-800 text-sm focus:outline-none focus:ring-4 focus:ring-[#FACC15]/20 transition-all font-bold placeholder-gray-400 shadow-sm"
                                 />
                             </div>
                         )}
                         <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <Mail className="h-4 w-4 text-gray-400 group-focus-within:text-[#FACC15]" />
+                            <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                                <Mail className="h-4 w-4 text-gray-400" />
                             </div>
                             <input
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                placeholder="Email"
+                                placeholder="Correo electrónico"
                                 required
-                                className="w-full pl-11 pr-4 py-3 bg-[#F3F4F6] border border-transparent rounded-md text-gray-800 text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-[#FACC15] transition-all font-medium placeholder-gray-400"
+                                className="w-full pl-12 pr-6 py-4 bg-white/60 border border-transparent rounded-[1.25rem] text-gray-800 text-sm focus:outline-none focus:ring-4 focus:ring-[#FACC15]/20 transition-all font-bold placeholder-gray-400 shadow-sm"
                             />
                         </div>
                         <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <Lock className="h-4 w-4 text-gray-400 group-focus-within:text-[#FACC15]" />
+                            <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                                <Lock className="h-4 w-4 text-gray-400" />
                             </div>
                             <input
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                placeholder="Password"
+                                placeholder="Contraseña"
                                 required
                                 minLength={6}
-                                className="w-full pl-11 pr-4 py-3 bg-[#F3F4F6] border border-transparent rounded-md text-gray-800 text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-[#FACC15] transition-all font-medium placeholder-gray-400"
+                                className="w-full pl-12 pr-6 py-4 bg-white/60 border border-transparent rounded-[1.25rem] text-gray-800 text-sm focus:outline-none focus:ring-4 focus:ring-[#FACC15]/20 transition-all font-bold placeholder-gray-400 shadow-sm"
                             />
                         </div>
 
                         {isLogin && (
                             <div className="text-center pt-2">
-                                <a href="#" className="text-[13px] text-gray-500 hover:text-[#FACC15] transition-colors font-medium">¿Olvidaste tu contraseña?</a>
+                                <a href="#" className="text-[11px] text-gray-500 hover:text-[#FACC15] transition-colors font-black uppercase tracking-widest">¿Olvidaste tu contraseña?</a>
                             </div>
                         )}
 
-                        <div className="pt-6 text-center">
+                        <div className="pt-8 text-center">
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="py-3 px-14 bg-[#FACC15] hover:bg-[#eab308] text-white rounded-md font-bold tracking-wider text-[13px] uppercase transition-all disabled:opacity-75 disabled:cursor-not-allowed focus:outline-none focus:ring-4 focus:ring-[#FACC15]/40 shadow-lg shadow-[#FACC15]/30 hover:shadow-xl hover:shadow-[#FACC15]/40 hover:-translate-y-0.5"
+                                className="w-full py-4 bg-[#FACC15] hover:bg-[#eab308] text-white rounded-[1.25rem] font-black tracking-widest text-[11px] uppercase transition-all duration-300 disabled:opacity-75 disabled:cursor-not-allowed focus:outline-none focus:ring-4 focus:ring-[#FACC15]/40 shadow-xl shadow-[#FACC15]/20 hover:shadow-[#FACC15]/30 hover:-translate-y-0.5"
                             >
-                                {loading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : (isLogin ? 'INICIAR SESIÓN' : 'REGISTRARSE')}
+                                {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto text-white" /> : (isLogin ? 'ACCEDER AHORA' : 'EMPEZAR GRATIS')}
                             </button>
                         </div>
                     </form>

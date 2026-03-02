@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import TaskForm from './TaskForm'
 import TaskItem from './TaskItem'
-import { Search, Loader2 } from 'lucide-react'
+import { Search, Loader2, Calendar } from 'lucide-react'
 
-export default function TaskList({ session }) {
+export default function TaskList({ session, selectedCategoryId, showPending }) {
     const [tasks, setTasks] = useState([])
     const [loading, setLoading] = useState(true)
     const [filter, setFilter] = useState('all') // 'all', 'active', 'completed'
@@ -13,7 +13,6 @@ export default function TaskList({ session }) {
     useEffect(() => {
         fetchTasks()
 
-        // Set up real-time subscription
         const channel = supabase
             .channel('tasks_channel')
             .on(
@@ -24,142 +23,155 @@ export default function TaskList({ session }) {
                     table: 'tasks',
                     filter: `user_id=eq.${session.user.id}`,
                 },
-                (payload) => {
-                    console.log('Real-time update:', payload)
-                    if (payload.eventType === 'INSERT') {
-                        setTasks((prev) => [payload.new, ...prev])
-                    } else if (payload.eventType === 'UPDATE') {
-                        setTasks((prev) =>
-                            prev.map((task) => (task.id === payload.new.id ? payload.new : task))
-                        )
-                    } else if (payload.eventType === 'DELETE') {
-                        setTasks((prev) => prev.filter((task) => task.id !== payload.old.id))
-                    }
-                }
+                fetchTasks
             )
             .subscribe()
 
         return () => {
             supabase.removeChannel(channel)
         }
-    }, [session.user.id])
+    }, [session.user.id, selectedCategoryId, showPending])
 
     const fetchTasks = async () => {
         try {
             setLoading(true)
-            const { data, error } = await supabase
+            let query = supabase
                 .from('tasks')
                 .select('*')
+                .eq('user_id', session.user.id)
                 .order('created_at', { ascending: false })
 
+            if (selectedCategoryId) {
+                query = query.eq('category_id', selectedCategoryId)
+            }
+
+            if (showPending) {
+                query = query.eq('is_pending', true)
+            }
+
+            const { data, error } = await query
             if (error) throw error
             setTasks(data || [])
         } catch (error) {
-            console.error('Error fetching tasks:', error.message)
+            console.error('Error al obtener tareas:', error.message)
         } finally {
             setLoading(false)
         }
     }
 
-    const handleAddTask = async ({ title, description }) => {
+    const handleAddTask = async (taskData) => {
         try {
             const { error } = await supabase.from('tasks').insert([
                 {
-                    title,
-                    description,
+                    ...taskData,
                     user_id: session.user.id,
+                    category_id: selectedCategoryId || null
                 },
             ])
             if (error) throw error
         } catch (error) {
-            console.error('Error adding task:', error.message)
-        }
-    }
-
-    const handleUpdateTask = async (id, updates) => {
-        try {
-            const { error } = await supabase
-                .from('tasks')
-                .update(updates)
-                .eq('id', id)
-
-            if (error) throw error
-
-            // Optimistic update
-            setTasks(tasks.map(t => t.id === id ? { ...t, ...updates } : t))
-        } catch (error) {
-            console.error('Error updating task:', error.message)
+            console.error('Error al añadir tarea:', error.message)
         }
     }
 
     const handleToggleTask = async (task) => {
-        await handleUpdateTask(task.id, { completed: !task.completed })
+        try {
+            const { error } = await supabase
+                .from('tasks')
+                .update({ completed: !task.completed })
+                .eq('id', task.id)
+            if (error) throw error
+        } catch (error) {
+            console.error('Error al cambiar estado de tarea:', error.message)
+        }
+    }
+
+    const handleTogglePending = async (task) => {
+        try {
+            const { error } = await supabase
+                .from('tasks')
+                .update({ is_pending: !task.is_pending })
+                .eq('id', task.id)
+            if (error) throw error
+        } catch (error) {
+            console.error('Error al cambiar estado pendiente:', error.message)
+        }
     }
 
     const handleDeleteTask = async (id) => {
         try {
             const { error } = await supabase.from('tasks').delete().eq('id', id)
             if (error) throw error
-
-            // Optimistic delete
-            setTasks(tasks.filter(t => t.id !== id))
         } catch (error) {
-            console.error('Error deleting task:', error.message)
+            console.error('Error al eliminar tarea:', error.message)
         }
     }
 
-    // Filter and search computation
     const filteredTasks = tasks.filter((task) => {
-        // 1. Text Search Filter
-        const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (task.description && task.description.toLowerCase().includes(searchQuery.toLowerCase()))
-        if (!matchesSearch) return false
+        const matchesFilter =
+            filter === 'all' ||
+            (filter === 'active' && !task.completed) ||
+            (filter === 'completed' && task.completed)
 
-        // 2. Status Filter
-        if (filter === 'active') return !task.completed
-        if (filter === 'completed') return task.completed
-        return true
+        const matchesSearch =
+            task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (task.description && task.description.toLowerCase().includes(searchQuery.toLowerCase()))
+
+        return matchesFilter && matchesSearch
     })
 
-    // Stats
     const activeCount = tasks.filter((t) => !t.completed).length
-    const completedCount = tasks.filter((t) => t.completed).length
 
     return (
-        <div className="w-full max-w-4xl mx-auto px-4 py-8">
-            {/* Navigation Bar */}
+        <div className="w-full max-w-4xl mx-auto px-4 py-12">
+            {/* Cabecera */}
             <div className="flex items-center justify-between mb-12">
-                <span className="text-gray-500 text-sm font-semibold">{session.user.email}</span>
-                <button
-                    onClick={() => supabase.auth.signOut()}
-                    className="px-8 py-3 bg-[#ffcdd2] text-gray-700 font-bold rounded-2xl shadow-[0_4px_12px_rgba(255,205,210,0.3)] hover:shadow-md transition-all text-sm border-none"
-                >
-                    Sign Out
-                </button>
+                <div>
+                    <h2 className="text-4xl font-black text-gray-800 tracking-tighter mb-2">
+                        {showPending ? 'Tareas Pendientes' : selectedCategoryId ? 'Categoría' : 'Mi Día'}
+                    </h2>
+                    <div className="flex items-center text-gray-500 font-bold tracking-tight uppercase text-xs">
+                        <Calendar className="w-3.5 h-3.5 mr-2" />
+                        <span>{new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
+                    </div>
+                </div>
+                <div className="text-right">
+                    <p className="text-gray-400 text-xs font-bold mb-1">{session.user.email}</p>
+                    <button
+                        onClick={() => supabase.auth.signOut()}
+                        className="px-6 py-2 bg-[#ffcdd2] text-gray-700 font-black rounded-xl shadow-lg hover:shadow-xl transition-all text-[10px] uppercase tracking-widest"
+                    >
+                        Cerrar Sesión
+                    </button>
+                </div>
             </div>
 
-            <TaskForm onAdd={handleAddTask} />
+            <TaskForm onAdd={handleAddTask} selectedCategoryId={selectedCategoryId} />
 
-            {/* Filters and Search */}
-            <div className="bg-[#e0f7fa] rounded-[2rem] p-4 mb-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-[0_8px_30px_rgb(224,247,250,0.3)]">
+            {/* Filtros y Búsqueda */}
+            <div className="bg-[#e0f7fa] rounded-[2rem] p-4 mb-10 flex flex-col md:flex-row items-center justify-between gap-6 border border-white/40 shadow-xl shadow-[#e0f7fa]/20">
                 <div className="flex space-x-2 w-full md:w-auto p-1 bg-[#b2dfdb]/20 rounded-2xl">
-                    {['all', 'active', 'completed'].map((f) => (
+                    {[
+                        { id: 'all', label: 'Todas' },
+                        { id: 'active', label: 'Activas' },
+                        { id: 'completed', label: 'Completadas' }
+                    ].map((f) => (
                         <button
-                            key={f}
-                            onClick={() => setFilter(f)}
-                            className={`flex-1 md:flex-none px-8 py-3.5 rounded-xl text-sm font-extrabold capitalize transition-all duration-300 ${filter === f
-                                ? 'bg-[#fff9c4] text-gray-700 shadow-[0_4px_15px_rgba(255,249,196,0.6)] scale-[1.02]'
+                            key={f.id}
+                            onClick={() => setFilter(f.id)}
+                            className={`flex-1 md:flex-none px-8 py-3.5 rounded-xl text-sm font-black transition-all duration-300 ${filter === f.id
+                                ? 'bg-[#fff9c4] text-gray-700 shadow-lg scale-[1.02]'
                                 : 'text-gray-500 hover:text-gray-700'
                                 }`}
                         >
-                            {f === 'active' ? (
+                            {f.id === 'active' ? (
                                 <div className="flex items-center">
-                                    Active
+                                    {f.label}
                                     <span className="ml-2 bg-[#e0f2f1] text-gray-600 px-2 py-0.5 rounded-lg text-xs font-bold">
                                         {activeCount}
                                     </span>
                                 </div>
-                            ) : f}
+                            ) : f.label}
                         </button>
                     ))}
                 </div>
@@ -170,57 +182,34 @@ export default function TaskList({ session }) {
                     </div>
                     <input
                         type="text"
-                        placeholder="Search tasks..."
+                        placeholder="Buscar tareas..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-14 pr-6 py-4 bg-[#b2dfdb] border-none rounded-2xl text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-[#b2dfdb]/40 transition-all font-medium"
+                        className="w-full pl-14 pr-6 py-4 bg-[#b2dfdb]/30 border-none rounded-2xl text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-[#b2dfdb]/40 transition-all font-bold"
                     />
                 </div>
             </div>
 
-            {loading ? (
-                <div className="flex justify-center py-12">
-                    <Loader2 className="w-10 h-10 text-primary-500 animate-spin" />
-                </div>
-            ) : tasks.length === 0 ? (
-                <div className="text-center py-16 px-4 bg-white/50 backdrop-blur border border-gray-200 border-dashed rounded-[2rem]">
-                    <div className="mx-auto w-16 h-16 bg-primary-50 border border-primary-100 rounded-full flex items-center justify-center mb-4">
-                        <Search className="w-8 h-8 text-primary-400" />
-                    </div>
-                    <h3 className="text-xl font-bold text-foreground mb-2">No tasks yet</h3>
-                    <p className="text-gray-500">Get started by adding a task above.</p>
+            {loading && tasks.length === 0 ? (
+                <div className="flex justify-center py-20">
+                    <Loader2 className="w-12 h-12 text-[#a0c4ff] animate-spin" />
                 </div>
             ) : filteredTasks.length === 0 ? (
-                <div className="text-center py-12 px-4 border border-gray-200 border-dashed rounded-[2rem] bg-white/50 backdrop-blur">
-                    <p className="text-gray-500 font-medium">No tasks found matching your filters.</p>
+                <div className="text-center py-24 bg-white/30 backdrop-blur-md rounded-[3rem] border border-white/40 shadow-inner">
+                    <p className="text-gray-400 font-black text-xl tracking-tight uppercase">No hay tareas aquí</p>
+                    <p className="text-gray-400/60 text-sm font-bold mt-2">Prueba a añadir una nueva tarea</p>
                 </div>
             ) : (
-                <div className="space-y-3">
+                <div className="space-y-4">
                     {filteredTasks.map((task) => (
                         <TaskItem
                             key={task.id}
                             task={task}
                             onToggle={handleToggleTask}
+                            onTogglePending={handleTogglePending}
                             onDelete={handleDeleteTask}
-                            onUpdate={handleUpdateTask}
                         />
                     ))}
-                </div>
-            )}
-
-            {tasks.length > 0 && (
-                <div className="mt-8 flex items-center justify-between text-sm font-medium text-gray-500 px-2">
-                    <span>{activeCount} items left</span>
-                    {completedCount > 0 && (
-                        <button
-                            onClick={() => {
-                                tasks.filter((t) => t.completed).forEach((t) => handleDeleteTask(t.id))
-                            }}
-                            className="px-3 py-1.5 rounded-lg text-accent-red hover:bg-red-50 transition-colors"
-                        >
-                            Clear completed
-                        </button>
-                    )}
                 </div>
             )}
         </div>
