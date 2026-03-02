@@ -14,7 +14,36 @@ function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   useEffect(() => {
-    // ... existing useEffect logic ...
+    if (!supabase) {
+      setLoading(false)
+      return
+    }
+
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+      if (session) {
+        fetchCategories()
+      }
+      setLoading(false)
+    })
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+      if (session) {
+        fetchCategories()
+      }
+    })
+
+    // Categories subscription
+    const catChannel = supabase
+      .channel('public_categories')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, fetchCategories)
+      .subscribe()
+
     return () => {
       subscription.unsubscribe()
       supabase.removeChannel(catChannel)
@@ -30,11 +59,31 @@ function App() {
   }
 
   if (!supabase) {
-    // ... missing credentials UI ...
+    return (
+      <div className="min-h-screen bg-[#f5e6ff] text-gray-800 p-8 flex flex-col items-center justify-center text-center relative overflow-hidden">
+        <div className="relative z-10 max-w-lg bg-white/40 backdrop-blur-xl border border-white/20 p-8 rounded-[2.5rem] shadow-2xl">
+          <h1 className="text-3xl font-black mb-4 text-red-400 tracking-tighter">Conexión faltante</h1>
+          <p className="text-gray-600 mb-6 leading-relaxed font-semibold">
+            La aplicación no puede conectarse a Supabase porque faltan las variables de entorno.
+          </p>
+          <div className="bg-white/50 rounded-2xl p-4 text-left border border-white/20 shadow-inner">
+            <p className="text-sm text-gray-500 mb-2">Por favor crea un archivo <code className="text-pink-400 px-1 py-0.5 bg-white rounded font-bold">.env</code> con:</p>
+            <pre className="text-xs text-gray-700 overflow-x-auto font-bold p-2">
+              VITE_SUPABASE_URL=tu_url_de_proyecto{"\n"}
+              VITE_SUPABASE_ANON_KEY=tu_anon_key
+            </pre>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (loading) {
-    // ... loading spinner ...
+    return (
+      <div className="min-h-screen bg-[#f5e6ff] flex items-center justify-center">
+        <Loader2 className="w-12 h-12 text-[#a0c4ff] animate-spin" />
+      </div>
+    )
   }
 
   if (!session) {
