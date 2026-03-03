@@ -5,8 +5,11 @@ import { parseISO, subMinutes, format } from 'date-fns';
 
 const NotificationManager = ({ session }) => {
     const [permission, setPermission] = useState(Notification.permission);
+    const [isStandalone, setIsStandalone] = useState(false);
 
     useEffect(() => {
+        setIsStandalone(window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone);
+
         if (permission === 'granted') {
             const interval = setInterval(checkDeadlines, 60000); // Revisar cada minuto para mayor precisión
             checkDeadlines();
@@ -64,6 +67,17 @@ const NotificationManager = ({ session }) => {
         }
     };
 
+    const handleTestNotification = () => {
+        if (permission !== 'granted') {
+            requestPermission();
+        } else {
+            sendNotification(
+                "¡Prueba Exitosa! 🎉",
+                "Si ves esto, tu teléfono permite recibir avisos de Cloud Task."
+            );
+        }
+    };
+
     const sendNotification = (title, body) => {
         if (navigator.serviceWorker.controller) {
             navigator.serviceWorker.ready.then(registration => {
@@ -104,6 +118,26 @@ const NotificationManager = ({ session }) => {
                     <Bell className="w-4 h-4 opacity-40 group-hover:opacity-100 transition-opacity" />
                 </div>
             )}
+
+            <div className="mt-4 flex flex-col items-end space-y-2">
+                <button
+                    onClick={handleTestNotification}
+                    className="bg-white/40 backdrop-blur-md p-2 rounded-xl border border-white/20 text-gray-500 hover:text-blue-500 transition-all shadow-sm"
+                    title="Probar notificación ahora"
+                >
+                    <span className="text-[9px] font-black uppercase tracking-widest px-1">Probar Aviso</span>
+                </button>
+
+                {!isStandalone && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) && (
+                    <div className="bg-orange-50/80 backdrop-blur-md p-3 rounded-2xl border border-orange-100 shadow-lg max-w-[200px] animate-pulse">
+                        <p className="text-[9px] font-black text-orange-600 leading-tight">
+                            ⚠️ PARA AVISOS EN MÓVIL: <br />
+                            Pulsa "Compartir" y luego <br />
+                            "Añadir a pantalla de inicio"
+                        </p>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
