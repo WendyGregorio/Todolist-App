@@ -167,7 +167,7 @@ function App() {
             />
           )}
         </div>
-        <NotificationManager session={session} />
+        {activeView === 'list' && <NotificationManager session={session} />}
       </div>
     </div>
   )

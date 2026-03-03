@@ -4,6 +4,7 @@ import TaskForm from './TaskForm'
 import TaskItem from './TaskItem'
 import { Search, Loader2, Calendar as CalendarIcon, RefreshCw } from 'lucide-react'
 import { addDays, addWeeks, addMonths, parseISO, format } from 'date-fns'
+import confetti from 'canvas-confetti'
 
 export default function TaskList({ session, selectedCategoryId, showPending, categories }) {
     const [tasks, setTasks] = useState([])
@@ -112,6 +113,16 @@ export default function TaskList({ session, selectedCategoryId, showPending, cat
                     due_date: nextDueDate.toISOString()
                 })
             }
+
+            // Efecto de confeti al completar
+            if (isCompleting) {
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#ffcdd2', '#e0f7fa', '#fff9c4', '#a0c4ff']
+                })
+            }
         } catch (error) {
             console.error('Error al cambiar estado de tarea:', error.message)
             alert('Error al actualizar tarea. Por favor, verifica tu base de datos Supabase.')
@@ -132,11 +143,18 @@ export default function TaskList({ session, selectedCategoryId, showPending, cat
     }
 
     const handleDeleteTask = async (id) => {
+        // Optimistic Update: Remove from UI immediately
+        const previousTasks = [...tasks]
+        setTasks(tasks.filter(t => t.id !== id))
+
         try {
             const { error } = await supabase.from('tasks').delete().eq('id', id)
             if (error) throw error
         } catch (error) {
             console.error('Error al eliminar tarea:', error.message)
+            // Revert if error
+            setTasks(previousTasks)
+            alert('Error al eliminar la tarea. Se ha restaurado en la lista.')
         }
     }
 
