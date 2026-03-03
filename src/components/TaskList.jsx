@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import TaskForm from './TaskForm'
 import TaskItem from './TaskItem'
-import { Search, Loader2, Calendar } from 'lucide-react'
+import { Search, Loader2, Calendar as CalendarIcon, RefreshCw } from 'lucide-react'
+import { addDays, addWeeks, addMonths, parseISO, format } from 'date-fns'
 
 export default function TaskList({ session, selectedCategoryId, showPending, categories }) {
     const [tasks, setTasks] = useState([])
@@ -82,11 +83,34 @@ export default function TaskList({ session, selectedCategoryId, showPending, cat
 
     const handleToggleTask = async (task) => {
         try {
+            const isCompleting = !task.completed
             const { error } = await supabase
                 .from('tasks')
-                .update({ completed: !task.completed })
+                .update({
+                    completed: isCompleting,
+                    completed_at: isCompleting ? new Date().toISOString() : null
+                })
                 .eq('id', task.id)
+
             if (error) throw error
+
+            // Lógica de repetición: autogenerar nueva instancia
+            if (isCompleting && task.repeat_type && task.repeat_type !== 'none') {
+                let nextDueDate = task.due_date ? parseISO(task.due_date) : new Date();
+
+                if (task.repeat_type === 'daily') nextDueDate = addDays(nextDueDate, 1);
+                else if (task.repeat_type === 'weekly') nextDueDate = addWeeks(nextDueDate, 1);
+                else if (task.repeat_type === 'monthly') nextDueDate = addMonths(nextDueDate, 1);
+
+                await handleAddTask({
+                    title: task.title,
+                    description: task.description,
+                    category_id: task.category_id,
+                    priority: task.priority,
+                    repeat_type: task.repeat_type,
+                    due_date: nextDueDate.toISOString()
+                })
+            }
         } catch (error) {
             console.error('Error al cambiar estado de tarea:', error.message)
         }
@@ -140,7 +164,7 @@ export default function TaskList({ session, selectedCategoryId, showPending, cat
                         {showPending ? 'Tareas Pendientes' : selectedCategoryId ? (currentCategory?.name || 'Categoría') : 'Mi Día'}
                     </h2>
                     <div className="flex items-center text-gray-500 font-bold tracking-tight uppercase text-[10px] sm:text-xs">
-                        <Calendar className="w-3.5 h-3.5 mr-2" />
+                        <CalendarIcon className="w-3.5 h-3.5 mr-2" />
                         <span>{new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
                     </div>
                 </div>

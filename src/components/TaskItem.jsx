@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabaseClient'
-import { CheckCircle2, Circle, Trash2, Edit2, Clock, Tag, Save, RotateCcw, Calendar } from 'lucide-react'
+import { CheckCircle2, Circle, Trash2, Edit2, Clock, Tag, Save, RotateCcw, Calendar, AlertCircle, RefreshCw } from 'lucide-react'
 
 export default function TaskItem({ task, onToggle, onTogglePending, onDelete }) {
     const [isEditing, setIsEditing] = useState(false)
@@ -110,6 +110,19 @@ export default function TaskItem({ task, onToggle, onTogglePending, onDelete }) 
                                 <span className="flex items-center px-2 sm:px-3 py-1 bg-orange-100 text-orange-400 rounded-lg text-[8px] sm:text-[10px] font-black uppercase tracking-widest">
                                     <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 sm:mr-1.5" />
                                     Pendiente
+                                </span>
+                            )}
+                            {task.priority && task.priority !== 'medium' && (
+                                <span className={`flex items-center px-2 sm:px-3 py-1 rounded-lg text-[8px] sm:text-[10px] font-black uppercase tracking-widest border ${task.priority === 'high' ? 'bg-red-50 text-red-500 border-red-100' : 'bg-blue-50 text-blue-500 border-blue-100'
+                                    }`}>
+                                    <AlertCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 sm:mr-1.5" />
+                                    {task.priority === 'high' ? 'Prioridad Alta' : 'Prioridad Baja'}
+                                </span>
+                            )}
+                            {task.repeat_type && task.repeat_type !== 'none' && (
+                                <span className="flex items-center px-2 sm:px-3 py-1 bg-green-50 text-green-500 rounded-lg text-[8px] sm:text-[10px] font-black uppercase tracking-widest border border-green-100">
+                                    <RefreshCw className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 sm:mr-1.5" />
+                                    {task.repeat_type === 'daily' ? 'Diario' : task.repeat_type === 'weekly' ? 'Semanal' : 'Mensual'}
                                 </span>
                             )}
                             {task.due_date && (

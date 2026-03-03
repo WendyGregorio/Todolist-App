@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabaseClient'
-import { PlusCircle, Tag, Calendar } from 'lucide-react'
+import { PlusCircle, Tag, Calendar, AlertCircle, RefreshCw } from 'lucide-react'
 
 export default function TaskForm({ onAdd, selectedCategoryId, categories }) {
     const [title, setTitle] = useState('')
     const [description, setDescription] = useState('')
     const [categoryId, setCategoryId] = useState(selectedCategoryId || '')
     const [dueDate, setDueDate] = useState('')
+    const [priority, setPriority] = useState('medium')
+    const [repeatType, setRepeatType] = useState('none')
     const [loading, setLoading] = useState(false)
 
     useEffect(() => {
@@ -22,7 +24,9 @@ export default function TaskForm({ onAdd, selectedCategoryId, categories }) {
             title,
             description,
             category_id: categoryId || null,
-            due_date: dueDate || null
+            due_date: dueDate || null,
+            priority,
+            repeat_type: repeatType
         })
         setTitle('')
         setDescription('')
@@ -76,6 +80,39 @@ export default function TaskForm({ onAdd, selectedCategoryId, categories }) {
                                 onChange={(e) => setDueDate(e.target.value)}
                                 className="bg-transparent border-none text-xs sm:text-sm font-black text-gray-600 focus:ring-0 cursor-pointer w-full p-0"
                             />
+                        </div>
+                    </div>
+
+                    <div className="flex items-center space-x-3 bg-white/40 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl border border-white/20">
+                        <AlertCircle className="w-4 h-4 text-gray-400" />
+                        <div className="flex flex-col flex-1">
+                            <span className="text-[8px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Prioridad</span>
+                            <select
+                                value={priority}
+                                onChange={(e) => setPriority(e.target.value)}
+                                className="bg-transparent border-none text-xs sm:text-sm font-black text-gray-600 focus:ring-0 cursor-pointer w-full p-0"
+                            >
+                                <option value="low">Baja</option>
+                                <option value="medium">Media</option>
+                                <option value="high">Alta</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center space-x-3 bg-white/40 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl border border-white/20">
+                        <RefreshCw className="w-4 h-4 text-gray-400" />
+                        <div className="flex flex-col flex-1">
+                            <span className="text-[8px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Repetir</span>
+                            <select
+                                value={repeatType}
+                                onChange={(e) => setRepeatType(e.target.value)}
+                                className="bg-transparent border-none text-xs sm:text-sm font-black text-gray-600 focus:ring-0 cursor-pointer w-full p-0"
+                            >
+                                <option value="none">Nunca</option>
+                                <option value="daily">Diario</option>
+                                <option value="weekly">Semanal</option>
+                                <option value="monthly">Mensual</option>
+                            </select>
                         </div>
                     </div>
                 </div>

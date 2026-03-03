@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './lib/supabaseClient'
 import Auth from './components/Auth'
-import TaskList from './components/TaskList'
 import Sidebar from './components/Sidebar'
+import TaskList from './components/TaskList'
+import CalendarView from './components/CalendarView'
+import StatsView from './components/StatsView'
+import NotificationManager from './components/NotificationManager'
 import { Loader2 } from 'lucide-react'
 
 function App() {
@@ -12,6 +15,7 @@ function App() {
   const [showPending, setShowPending] = useState(false)
   const [categories, setCategories] = useState([])
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [activeView, setActiveView] = useState('list') // 'list', 'calendar', 'stats'
 
   useEffect(() => {
     if (!supabase) {
@@ -114,6 +118,13 @@ function App() {
         }}
         showPending={showPending}
         categories={categories}
+        activeView={activeView}
+        onSelectView={(view) => {
+          setActiveView(view)
+          setSelectedCategoryId(null)
+          setShowPending(false)
+          setIsSidebarOpen(false)
+        }}
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
@@ -136,13 +147,27 @@ function App() {
         <div className="absolute top-0 left-0 w-full h-[300px] bg-gradient-to-b from-white/30 to-transparent pointer-events-none"></div>
 
         <div className="relative z-10 flex-1">
-          <TaskList
-            session={session}
-            selectedCategoryId={selectedCategoryId}
-            showPending={showPending}
-            categories={categories}
-          />
+          {activeView === 'list' && (
+            <TaskList
+              session={session}
+              selectedCategoryId={selectedCategoryId}
+              showPending={showPending}
+              categories={categories}
+            />
+          )}
+          {activeView === 'calendar' && (
+            <CalendarView
+              session={session}
+              categories={categories}
+            />
+          )}
+          {activeView === 'stats' && (
+            <StatsView
+              session={session}
+            />
+          )}
         </div>
+        <NotificationManager session={session} />
       </div>
     </div>
   )

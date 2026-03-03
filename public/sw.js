@@ -1,6 +1,4 @@
-// Minimal Service Worker to allow installation without caching files.
-// This ensures the application always loads the latest version from the server.
-
+// Advanced Service Worker with Notification and Push support
 self.addEventListener('install', (event) => {
     self.skipWaiting();
 });
@@ -9,8 +7,43 @@ self.addEventListener('activate', (event) => {
     event.waitUntil(self.clients.claim());
 });
 
-// Pass-through fetch handler (required for PWA installation in most browsers)
 self.addEventListener('fetch', (event) => {
-    // Just fetch directly from the network
+    // Pass-through for network stability
     return;
+});
+
+// Handle Push Notifications
+self.addEventListener('push', (event) => {
+    const data = event.data ? event.data.json() : { title: 'Cloud Tasks', body: 'Tienes una tarea pendiente.' };
+
+    const options = {
+        body: data.body,
+        icon: '/icon-192x192.png',
+        badge: '/icon-192x192.png',
+        vibrate: [100, 50, 100],
+        data: {
+            url: data.url || '/'
+        }
+    };
+
+    event.waitUntil(
+        self.registration.showNotification(data.title, options)
+    );
+});
+
+// Handle Notification Clicks
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+    event.waitUntil(
+        clients.matchAll({ type: 'window' }).then((clientList) => {
+            for (const client of clientList) {
+                if (client.url === '/' && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+            if (clients.openWindow) {
+                return clients.openWindow(event.notification.data.url);
+            }
+        })
+    );
 });

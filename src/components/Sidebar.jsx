@@ -7,10 +7,12 @@ import {
     MoreVertical,
     Trash2,
     Edit3,
-    List
+    List,
+    Calendar,
+    BarChart2
 } from 'lucide-react'
 
-const Sidebar = ({ onSelectCategory, selectedCategoryId, onSelectPending, showPending, categories, isOpen, onClose }) => {
+const Sidebar = ({ onSelectCategory, selectedCategoryId, onSelectPending, showPending, categories, isOpen, onClose, activeView, onSelectView }) => {
     const [newCategoryName, setNewCategoryName] = useState('')
     const [isAdding, setIsAdding] = useState(false)
     const [editingId, setEditingId] = useState(null)
@@ -75,10 +77,11 @@ const Sidebar = ({ onSelectCategory, selectedCategoryId, onSelectPending, showPe
             <div className="space-y-4 flex-1 overflow-y-auto pr-2 custom-scrollbar">
                 <button
                     onClick={() => {
+                        onSelectView('list')
                         onSelectCategory(null)
                         onSelectPending(false)
                     }}
-                    className={`w-full flex items-center space-x-4 px-6 py-4 rounded-2xl transition-all duration-300 font-bold ${!selectedCategoryId && !showPending
+                    className={`w-full flex items-center space-x-4 px-6 py-4 rounded-2xl transition-all duration-300 font-bold ${activeView === 'list' && !selectedCategoryId && !showPending
                         ? 'bg-[#fff9c4] text-gray-800 shadow-lg scale-[1.02]'
                         : 'hover:bg-white/40 text-gray-500'
                         }`}
@@ -89,6 +92,33 @@ const Sidebar = ({ onSelectCategory, selectedCategoryId, onSelectPending, showPe
 
                 <button
                     onClick={() => {
+                        onSelectView('calendar')
+                    }}
+                    className={`w-full flex items-center space-x-4 px-6 py-4 rounded-2xl transition-all duration-300 font-bold ${activeView === 'calendar'
+                        ? 'bg-[#e3f2fd] text-gray-800 shadow-lg scale-[1.02]'
+                        : 'hover:bg-white/40 text-gray-500'
+                        }`}
+                >
+                    <Calendar className="w-5 h-5" />
+                    <span>Calendario</span>
+                </button>
+
+                <button
+                    onClick={() => {
+                        onSelectView('stats')
+                    }}
+                    className={`w-full flex items-center space-x-4 px-6 py-4 rounded-2xl transition-all duration-300 font-bold ${activeView === 'stats'
+                        ? 'bg-[#f3e5f5] text-gray-800 shadow-lg scale-[1.02]'
+                        : 'hover:bg-white/40 text-gray-500'
+                        }`}
+                >
+                    <BarChart2 className="w-5 h-5" />
+                    <span>Estadísticas</span>
+                </button>
+
+                <button
+                    onClick={() => {
+                        onSelectView('list')
                         onSelectCategory(null)
                         onSelectPending(true)
                     }}
