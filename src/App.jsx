@@ -5,7 +5,6 @@ import Sidebar from './components/Sidebar'
 import TaskList from './components/TaskList'
 import CalendarView from './components/CalendarView'
 import StatsView from './components/StatsView'
-import NotificationManager from './components/NotificationManager'
 import { Loader2 } from 'lucide-react'
 
 function App() {
@@ -167,7 +166,6 @@ function App() {
             />
           )}
         </div>
-        {activeView === 'list' && <NotificationManager session={session} />}
       </div>
     </div>
   )
