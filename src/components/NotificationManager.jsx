@@ -1,3 +1,5 @@
+import React, { useEffect, useState } from 'react';
+import { supabase } from '../lib/supabaseClient';
 import { Bell, BellOff, BellRing } from 'lucide-react';
 import { parseISO, subMinutes, format } from 'date-fns';
 
