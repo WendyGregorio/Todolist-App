@@ -1,15 +1,10 @@
-// Advanced Service Worker with Notification and Push support
+// Basic SW for PWA installation eligibility
 self.addEventListener('install', (event) => {
     self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
     event.waitUntil(self.clients.claim());
-});
-
-self.addEventListener('fetch', (event) => {
-    // Pass-through for network stability
-    return;
 });
 
 // Handle Push Notifications

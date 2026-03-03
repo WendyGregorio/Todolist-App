@@ -14,13 +14,12 @@ if (container) {
   );
 }
 
-// Simple SW registration for installation eligibility
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js', { scope: '/' })
-    .then(reg => {
-      console.log('SW registered successfully');
-      // Forzar actualización si hay una nueva versión
-      reg.update();
-    })
-    .catch(err => console.error('SW registration failed', err));
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').then(reg => {
+      console.log('SW registered');
+    }).catch(err => {
+      console.error('SW registration failed', err);
+    });
+  });
 }
