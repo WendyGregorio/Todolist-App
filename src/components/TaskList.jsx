@@ -78,6 +78,7 @@ export default function TaskList({ session, selectedCategoryId, showPending, cat
             if (error) throw error
         } catch (error) {
             console.error('Error al añadir tarea:', error.message)
+            alert('Error: No se pudo añadir la tarea. Asegúrate de haber ejecutado el script SQL de reparación en Supabase.')
         }
     }
 
@@ -113,6 +114,7 @@ export default function TaskList({ session, selectedCategoryId, showPending, cat
             }
         } catch (error) {
             console.error('Error al cambiar estado de tarea:', error.message)
+            alert('Error al actualizar tarea. Por favor, verifica tu base de datos Supabase.')
         }
     }
 
@@ -125,6 +127,7 @@ export default function TaskList({ session, selectedCategoryId, showPending, cat
             if (error) throw error
         } catch (error) {
             console.error('Error al cambiar estado pendiente:', error.message)
+            alert('Error: La columna "is_pending" no existe. Ejecuta el SQL de reparación.')
         }
     }
 

@@ -7,7 +7,7 @@ export default function TaskForm({ onAdd, selectedCategoryId, categories }) {
     const [description, setDescription] = useState('')
     const [categoryId, setCategoryId] = useState(selectedCategoryId || '')
     const [dueDate, setDueDate] = useState('')
-    const [priority, setPriority] = useState('medium')
+    const [priority, setPriority] = useState('pending')
     const [repeatType, setRepeatType] = useState('none')
     const [loading, setLoading] = useState(false)
 
@@ -92,9 +92,9 @@ export default function TaskForm({ onAdd, selectedCategoryId, categories }) {
                                 onChange={(e) => setPriority(e.target.value)}
                                 className="bg-transparent border-none text-xs sm:text-sm font-black text-gray-600 focus:ring-0 cursor-pointer w-full p-0"
                             >
-                                <option value="low">Baja</option>
-                                <option value="medium">Media</option>
-                                <option value="high">Alta</option>
+                                <option value="urgent">Urgente (Rojo)</option>
+                                <option value="pending">Pendiente (Naranja)</option>
+                                <option value="not_urgent">No Urgente (Amarillo)</option>
                             </select>
                         </div>
                     </div>

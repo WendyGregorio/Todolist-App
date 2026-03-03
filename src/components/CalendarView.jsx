@@ -68,13 +68,28 @@ const CalendarView = ({ session, categories }) => {
         return (
             <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4 bg-white/40 backdrop-blur-xl p-6 rounded-[2.5rem] border border-white/20 shadow-xl">
                 <div className="flex items-center space-x-4">
-                    <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-2 hover:bg-white/60 rounded-full transition-all text-gray-400 hover:text-gray-800">
+                    <button
+                        onClick={() => {
+                            if (view === 'month') setCurrentMonth(subMonths(currentMonth, 1));
+                            else setCurrentMonth(addDays(currentMonth, -7));
+                        }}
+                        className="p-2 hover:bg-white/60 rounded-full transition-all text-gray-400 hover:text-gray-800"
+                    >
                         <ChevronLeft />
                     </button>
                     <h2 className="text-2xl font-black text-gray-800 tracking-tighter capitalize">
-                        {format(currentMonth, dateFormat, { locale: es })}
+                        {view === 'month'
+                            ? format(currentMonth, dateFormat, { locale: es })
+                            : `Semana del ${format(startOfWeek(currentMonth, { locale: es }), 'd MMM', { locale: es })}`
+                        }
                     </h2>
-                    <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-2 hover:bg-white/60 rounded-full transition-all text-gray-400 hover:text-gray-800">
+                    <button
+                        onClick={() => {
+                            if (view === 'month') setCurrentMonth(addMonths(currentMonth, 1));
+                            else setCurrentMonth(addDays(currentMonth, 7));
+                        }}
+                        className="p-2 hover:bg-white/60 rounded-full transition-all text-gray-400 hover:text-gray-800"
+                    >
                         <ChevronRight />
                     </button>
                 </div>

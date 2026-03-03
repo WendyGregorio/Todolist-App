@@ -84,18 +84,22 @@ const NotificationManager = ({ session }) => {
     };
 
     return (
-        <div className="fixed bottom-6 right-6 z-50">
+        <div className="fixed top-24 right-6 z-50">
             {permission !== 'granted' ? (
                 <button
                     onClick={requestPermission}
-                    className="flex items-center space-x-2 bg-orange-400 text-white px-6 py-3 rounded-2xl font-black shadow-xl hover:bg-orange-500 transition-all animate-bounce"
+                    className="flex items-center space-x-2 bg-white/60 backdrop-blur-md border border-white/40 text-gray-600 px-4 py-2 rounded-xl font-bold shadow-lg hover:bg-white/80 transition-all text-[10px] uppercase tracking-widest"
+                    title={`Notificaciones activadas para: ${session.user.email}`}
                 >
-                    <BellRing className="w-5 h-5" />
-                    <span className="text-xs uppercase tracking-widest">Activar Recordatorios</span>
+                    <BellRing className="w-4 h-4 text-orange-400" />
+                    <span>Activar Avisos</span>
                 </button>
             ) : (
-                <div className="bg-white/60 backdrop-blur-md p-3 rounded-2xl border border-white/20 shadow-lg text-green-500 group">
-                    <Bell className="w-5 h-5 group-hover:animate-swing" />
+                <div
+                    className="bg-white/30 backdrop-blur-md p-2 rounded-xl border border-white/20 shadow-sm text-green-500 group cursor-help"
+                    title={`Avisos configurados para ${session.user.email}`}
+                >
+                    <Bell className="w-4 h-4 opacity-40 group-hover:opacity-100 transition-opacity" />
                 </div>
             )}
         </div>
