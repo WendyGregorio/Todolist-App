@@ -7,6 +7,7 @@ export default function TaskForm({ onAdd, selectedCategoryId, categories }) {
     const [description, setDescription] = useState('')
     const [categoryId, setCategoryId] = useState(selectedCategoryId || '')
     const [dueDate, setDueDate] = useState('')
+    const [dueTime, setDueTime] = useState('')
     const [priority, setPriority] = useState('pending')
     const [repeatType, setRepeatType] = useState('none')
     const [loading, setLoading] = useState(false)
@@ -20,17 +21,23 @@ export default function TaskForm({ onAdd, selectedCategoryId, categories }) {
         if (!title.trim()) return
 
         setLoading(true)
+        let finalDueDate = null
+        if (dueDate) {
+            finalDueDate = dueTime ? `${dueDate}T${dueTime}:00` : `${dueDate}T23:59:59`
+        }
+
         await onAdd({
             title,
             description,
             category_id: categoryId || null,
-            due_date: dueDate || null,
+            due_date: finalDueDate,
             priority,
             repeat_type: repeatType
         })
         setTitle('')
         setDescription('')
         setDueDate('')
+        setDueTime('')
         setLoading(false)
     }
 
@@ -73,13 +80,21 @@ export default function TaskForm({ onAdd, selectedCategoryId, categories }) {
                     <div className="flex items-center space-x-3 bg-white/40 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl border border-white/20">
                         <Calendar className="w-4 h-4 text-gray-400" />
                         <div className="flex flex-col flex-1">
-                            <span className="text-[8px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Fecha Máxima</span>
-                            <input
-                                type="date"
-                                value={dueDate}
-                                onChange={(e) => setDueDate(e.target.value)}
-                                className="bg-transparent border-none text-xs sm:text-sm font-black text-gray-600 focus:ring-0 cursor-pointer w-full p-0"
-                            />
+                            <span className="text-[8px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Fecha y Hora</span>
+                            <div className="flex items-center space-x-2">
+                                <input
+                                    type="date"
+                                    value={dueDate}
+                                    onChange={(e) => setDueDate(e.target.value)}
+                                    className="bg-transparent border-none text-xs sm:text-sm font-black text-gray-600 focus:ring-0 cursor-pointer p-0 w-1/2"
+                                />
+                                <input
+                                    type="time"
+                                    value={dueTime}
+                                    onChange={(e) => setDueTime(e.target.value)}
+                                    className="bg-transparent border-none text-xs sm:text-sm font-black text-gray-600 focus:ring-0 cursor-pointer p-0 w-1/2"
+                                />
+                            </div>
                         </div>
                     </div>
 

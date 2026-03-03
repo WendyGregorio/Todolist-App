@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabaseClient'
-import { CheckCircle2, Circle, Trash2, Edit2, Clock, Tag, Save, RotateCcw, Calendar, AlertCircle, RefreshCw } from 'lucide-react'
+import { CheckCircle2, Circle, Trash2, Edit2, Clock, Tag, RotateCcw, Calendar, AlertCircle, RefreshCw } from 'lucide-react'
+import { format, parseISO } from 'date-fns'
+import { es } from 'date-fns/locale'
 
 export default function TaskItem({ task, onToggle, onTogglePending, onDelete }) {
     const [isEditing, setIsEditing] = useState(false)
@@ -42,13 +44,6 @@ export default function TaskItem({ task, onToggle, onTogglePending, onDelete }) 
         setEditTitle(task.title)
         setEditDescription(task.description || '')
         setIsEditing(false)
-    }
-
-    // Formatear fecha para mostrar
-    const formatDate = (dateString) => {
-        if (!dateString) return null
-        const date = new Date(dateString)
-        return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
     }
 
     return (
@@ -114,8 +109,8 @@ export default function TaskItem({ task, onToggle, onTogglePending, onDelete }) 
                             )}
                             {task.priority && (
                                 <span className={`flex items-center px-2 sm:px-3 py-1 rounded-lg text-[8px] sm:text-[10px] font-black uppercase tracking-widest border ${task.priority === 'urgent' ? 'bg-red-50 text-red-500 border-red-100' :
-                                        task.priority === 'pending' ? 'bg-orange-50 text-orange-500 border-orange-100' :
-                                            'bg-yellow-50 text-yellow-600 border-yellow-100'
+                                    task.priority === 'pending' ? 'bg-orange-50 text-orange-500 border-orange-100' :
+                                        'bg-yellow-50 text-yellow-600 border-yellow-100'
                                     }`}>
                                     <AlertCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 sm:mr-1.5" />
                                     {task.priority === 'urgent' ? 'Urgente' :
@@ -129,9 +124,9 @@ export default function TaskItem({ task, onToggle, onTogglePending, onDelete }) 
                                 </span>
                             )}
                             {task.due_date && (
-                                <span className="flex items-center px-2 sm:px-3 py-1 bg-purple-100 text-purple-400 rounded-lg text-[8px] sm:text-[10px] font-black uppercase tracking-widest border border-purple-200/30">
+                                <span className="flex items-center px-2 sm:px-3 py-1 bg-white/40 rounded-lg text-[8px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest border border-white/20">
                                     <Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 sm:mr-1.5" />
-                                    Vence: {formatDate(task.due_date)}
+                                    {format(parseISO(task.due_date), "d MMM, HH:mm", { locale: es })}
                                 </span>
                             )}
                         </div>

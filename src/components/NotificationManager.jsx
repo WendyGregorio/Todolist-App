@@ -1,14 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabaseClient';
 import { Bell, BellOff, BellRing } from 'lucide-react';
-import { parseISO, subHours, subDays, isBefore, isAfter } from 'date-fns';
+import { parseISO, subMinutes, format } from 'date-fns';
 
 const NotificationManager = ({ session }) => {
     const [permission, setPermission] = useState(Notification.permission);
 
     useEffect(() => {
         if (permission === 'granted') {
-            const interval = setInterval(checkDeadlines, 60000 * 5); // Cada 5 minutos
+            const interval = setInterval(checkDeadlines, 60000); // Revisar cada minuto para mayor precisión
             checkDeadlines();
             return () => clearInterval(interval);
         }
@@ -35,21 +33,21 @@ const NotificationManager = ({ session }) => {
 
             for (const task of tasks) {
                 const dueDate = parseISO(task.due_date);
-                const oneDayBefore = subDays(dueDate, 1);
-                const oneHourBefore = subHours(dueDate, 1);
+                const thirtyMinutesBefore = subMinutes(dueDate, 30);
+
+                // Si faltan entre 25 y 35 minutos para la tarea (ventana de detección)
+                // O si la tarea acaba de vencer hace poco (menos de 5 min)
+                const diffInMinutes = (dueDate.getTime() - now.getTime()) / 60000;
 
                 let shouldNotify = false;
                 let message = "";
 
-                if (isBefore(oneDayBefore, now) && isAfter(dueDate, now)) {
+                if (diffInMinutes <= 30 && diffInMinutes > 0) {
                     shouldNotify = true;
-                    message = `Recuerda: "${task.title}" vence mañana.`;
-                } else if (isBefore(oneHourBefore, now) && isAfter(dueDate, now)) {
+                    message = `¡Recordatorio! "${task.title}" vence en 30 minutos (${format(dueDate, 'HH:mm')}).`;
+                } else if (diffInMinutes <= 0 && diffInMinutes > -5) {
                     shouldNotify = true;
-                    message = `¡Urgente! "${task.title}" vence en una hora.`;
-                } else if (isBefore(dueDate, now)) {
-                    shouldNotify = true;
-                    message = `"${task.title}" ha vencido hoy.`;
+                    message = `"${task.title}" ha llegado a su hora límite (${format(dueDate, 'HH:mm')}).`;
                 }
 
                 if (shouldNotify) {
