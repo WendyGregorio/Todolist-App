@@ -23,7 +23,9 @@ export default function TaskForm({ onAdd, selectedCategoryId, categories }) {
         setLoading(true)
         let finalDueDate = null
         if (dueDate) {
-            finalDueDate = dueTime ? `${dueDate}T${dueTime}:00` : `${dueDate}T23:59:59`
+            // Combinar fecha y hora usando el objeto Date local para que el backend reciba UTC correcto
+            const dateStr = dueTime ? `${dueDate}T${dueTime}` : `${dueDate}T23:59:59`;
+            finalDueDate = new Date(dateStr).toISOString();
         }
 
         await onAdd({

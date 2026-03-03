@@ -31,28 +31,30 @@ const NotificationManager = ({ session }) => {
 
             if (error) throw error;
 
-            const now = new Date();
-
             for (const task of tasks) {
                 const dueDate = parseISO(task.due_date);
-                const thirtyMinutesBefore = subMinutes(dueDate, 30);
-
-                // Si faltan entre 25 y 35 minutos para la tarea (ventana de detección)
-                // O si la tarea acaba de vencer hace poco (menos de 5 min)
+                const now = new Date();
                 const diffInMinutes = (dueDate.getTime() - now.getTime()) / 60000;
+
+                console.log(`[Notificaciones] Revisando: "${task.title}"`);
+                console.log(`- Vence en: ${format(dueDate, 'PPpp')}`);
+                console.log(`- Ahora es: ${format(now, 'PPpp')}`);
+                console.log(`- Diferencia: ${diffInMinutes.toFixed(2)} minutos`);
 
                 let shouldNotify = false;
                 let message = "";
 
-                if (diffInMinutes <= 30 && diffInMinutes > 0) {
+                // Rango de 28 a 32 minutos para asegurar que el check de cada minuto lo capture
+                if (diffInMinutes <= 31 && diffInMinutes >= 29) {
                     shouldNotify = true;
                     message = `¡Recordatorio! "${task.title}" vence en 30 minutos (${format(dueDate, 'HH:mm')}).`;
-                } else if (diffInMinutes <= 0 && diffInMinutes > -5) {
+                } else if (diffInMinutes <= 0 && diffInMinutes > -10) {
                     shouldNotify = true;
                     message = `"${task.title}" ha llegado a su hora límite (${format(dueDate, 'HH:mm')}).`;
                 }
 
                 if (shouldNotify) {
+                    console.log(`[Notificaciones] DISPARANDO NOTIFICACIÓN: ${message}`);
                     sendNotification(task.title, message);
                     await markAsSent(task.id);
                 }
