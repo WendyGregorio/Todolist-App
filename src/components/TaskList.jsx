@@ -79,7 +79,7 @@ export default function TaskList({ session, selectedCategoryId, showPending, cat
             if (error) throw error
         } catch (error) {
             console.error('Error al añadir tarea:', error.message)
-            alert('Error: No se pudo añadir la tarea. Asegúrate de haber ejecutado el script SQL de reparación en Supabase.')
+            alert(`Error: ${error.message || 'No se pudo añadir la tarea'}. Por favor, vuelve a ejecutar el SQL de REPARAR_TODO.sql en Supabase.`)
         }
     }
 
